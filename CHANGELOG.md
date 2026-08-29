@@ -5,6 +5,33 @@ All notable changes to PSGraph are documented here. This file starts at
 (2.1.38, August 2019), the point at which `themodulecollective/PSGraph`
 forked from the then-dormant `KevinMarquette/PSGraph`.
 
+## 3.1.0 - 2026-08-29
+
+### Added
+
+- `Record -TableAttributes` controls the outer `<TABLE>` element (e.g.
+  `CELLBORDER`), letting callers hide borders between every row in one
+  call instead of repeating `Row -Attributes` on each one. (#81)
+- `Row -Separator` emits a dedicated thin divider row. (#81)
+- `Cells`: converts pipeline objects into HTML table rows for use inside
+  a `Record`. Ported from upstream PR #105, fixing a property-name typo
+  (`PortPoroperty` -> `PortProperty`) and switching to this module's
+  existing uppercase `<TR>`/`<TD>` convention.
+- `Export-PSGraph` gained format-specific aliases (`pngGraph`,
+  `svgGraph`, `dotGraph`, etc., one per `-OutputFormat` value) that infer
+  the output format from the alias name unless `-OutputFormat` is passed
+  explicitly. Ported from upstream PR #105, using this module's existing
+  static `[Alias(...)]` pattern instead of the original's runtime
+  `New-Alias -Scope Global` loop (which also collided with `Graph`'s
+  existing `DiGraph` alias).
+
+### Fixed
+
+- `Format-Value`'s HTML-like-label detection only recognized labels
+  starting with `<table`; any other valid GraphViz HTML-like label
+  (`<b>...`, `<font>...`) fell through to the default branch and was
+  corrupted by quote-escaping. (#100)
+
 ## 3.0.0 - 2026-08-29
 
 ### Breaking

@@ -34,6 +34,15 @@ function Export-PSGraph
             edge hello world
         } | Export-PSGraph -OutputFormat svg -PassThru
 
+        .Example
+        graph g {
+            edge hello world
+        } | svgGraph -PassThru
+
+        Format-specific aliases (pngGraph, svgGraph, dotGraph, etc., one per -OutputFormat
+        value) call Export-PSGraph with -OutputFormat inferred from the alias name, unless
+        -OutputFormat is passed explicitly.
+
         .Notes
         The source can either be files or piped graph data.
 
@@ -41,6 +50,10 @@ function Export-PSGraph
         This may give unexpected errors when the file does not exist.
     #>
     [cmdletbinding()]
+    [Alias(
+        'jpgGraph', 'pngGraph', 'gifGraph', 'imapGraph', 'cmapxGraph',
+        'jp2Graph', 'jsonGraph', 'pdfGraph', 'plainGraph', 'dotGraph', 'svgGraph'
+    )]
     param(
         # The GraphViz file to process or contents of the graph in Dot notation
         [Parameter(
@@ -103,6 +116,17 @@ function Export-PSGraph
     {
         try
         {
+            # Invoked through a format-specific alias (pngGraph, svgGraph, ...) and no
+            # explicit -OutputFormat was passed: infer it from the alias name. Both the
+            # local variable (used below for the temp-file extension) and
+            # $PSBoundParameters (what Get-GraphVizArgument actually reads) must be set.
+            if ( -Not $PSBoundParameters.ContainsKey('OutputFormat') -and
+                $MyInvocation.InvocationName -match '^(?<format>jpg|png|gif|imap|cmapx|jp2|json|pdf|plain|dot|svg)Graph$' )
+            {
+                $OutputFormat = $Matches.format
+                $PSBoundParameters['OutputFormat'] = $OutputFormat
+            }
+
             if ( $PassThru )
             {
                 if ( $PSBoundParameters.ContainsKey('DestinationPath') -and -Not [string]::IsNullOrEmpty($DestinationPath) )

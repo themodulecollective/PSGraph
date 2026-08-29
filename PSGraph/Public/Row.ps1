@@ -22,6 +22,10 @@ function Row
     Additional HTML attributes applied to this row's cell, e.g. @{BORDER = 0} to hide the row's
     border line, or @{BGCOLOR = 'lightgrey'} to shade it.
 
+    .PARAMETER Separator
+    Emits a dedicated thin divider row instead of a labeled one, useful for visually grouping
+    rows in a Record without hiding every row's border individually.
+
     .EXAMPLE
     graph {
 
@@ -53,29 +57,44 @@ function Row
 
     #>
     [OutputType('System.String')]
-    [cmdletbinding()]
+    [cmdletbinding(DefaultParameterSetName = 'Default')]
     param(
         [Parameter(
             Mandatory,
             Position = 0,
-            ValueFromPipeline
+            ValueFromPipeline,
+            ParameterSetName = 'Default'
         )]
         [string]
         $Label,
 
+        [Parameter(ParameterSetName = 'Default')]
         [alias('ID')]
         [string]
         $Name,
 
+        [Parameter(ParameterSetName = 'Default')]
         [switch]
         $HtmlEncode,
 
         # Additional HTML attributes for this row's cell, e.g. @{BORDER = 0} to hide the row's border
+        [Parameter(ParameterSetName = 'Default')]
         [hashtable]
-        $Attributes = @{}
+        $Attributes = @{},
+
+        # #81: emit a dedicated thin divider row instead of a labeled one
+        [Parameter(Mandatory, ParameterSetName = 'Separator')]
+        [switch]
+        $Separator
     )
     process
     {
+        if ( $Separator )
+        {
+            '<TR><TD BORDER="0" CELLPADDING="0" HEIGHT="1" BGCOLOR="gray"></TD></TR>'
+            return
+        }
+
         if ( [string]::IsNullOrEmpty($Name) )
         {
             if ($Label -notmatch '[<,>\s]')

@@ -52,8 +52,8 @@ function Format-Value
 
             switch -Regex ( $value )
             {
-                # HTML label, special designation
-                '^<\s*table.*>.*'
+                # HTML-like label (DOT grammar: any value wrapped in <...>, not just <table>)
+                '(?s)^<.*>$'
                 {
                     "<$PSItem>"
                 }

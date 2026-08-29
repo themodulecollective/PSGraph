@@ -84,6 +84,23 @@ Describe "Function Record" -Tag Build {
         $result | Should -match '<B>Second</B>'
     }
 
+    Context "#81 TableAttributes controls the outer <TABLE> element" {
+
+        It 'uses the default CELLBORDER/BORDER/CELLSPACING when not specified' {
+            $result = Record test { Row 'first' }
+            $result | Should -Match 'CELLBORDER="1"'
+            $result | Should -Match 'BORDER="0"'
+            $result | Should -Match 'CELLSPACING="0"'
+        }
+
+        It 'hides borders between rows when CELLBORDER is overridden' {
+            $result = Record test -TableAttributes @{ CELLBORDER = 0; BORDER = 0; CELLSPACING = 0 } {
+                Row 'first'
+            }
+            $result | Should -Match 'CELLBORDER="0"'
+        }
+    }
+
     Context "#65 GUID-style row ports round-trip through Edge" {
 
         It 'quotes a GUID row port when targeted by Edge' {

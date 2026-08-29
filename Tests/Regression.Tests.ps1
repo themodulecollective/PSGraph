@@ -13,6 +13,11 @@ Describe "Regression tests for Github issues" -Tag Build {
             $result | Should -Be '"test" [label=<<TABLE><TR><TD><B><U>Node A</U></B></TD></TR></TABLE>>;]'
         }
 
+        It "#100 non-table HTML-like labels round-trip through Node" {
+            $result = node test @{label = "<b>bold</b>"}
+            $result | Should -Be '"test" [label=<<b>bold</b>>;]'
+        }
+
         It "#5 Struct syntax not recognized" {
             edge Struct1:f1 Struct2:f2 | Should -Be '"STRUCT1":f1->"STRUCT2":f2 '
             edge "Struct 1:f1" "Struct 2:f2" | Should -Be '"STRUCT 1":f1->"STRUCT 2":f2 '
