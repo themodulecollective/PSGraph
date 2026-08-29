@@ -256,10 +256,29 @@ function Export-PSGraph
                 $arguments = Get-GraphVizArgument $PSBoundParameters
                 Write-Verbose " Arguments: $($arguments -join ' ')"
 
-                $result = $standardInput.ToString() | & $graphViz @($arguments)
-                if ($LastExitCode)
+                # Write DOT source to a temp file instead of piping it via stdin: piping through
+                # PowerShell's native-command pipeline depends on $OutputEncoding/console-codepage
+                # translation that behaves differently between Windows PowerShell (Desktop) and
+                # PowerShell 7+ (Core), and can produce a nonzero exit code from dot on Desktop.
+                # A real file sidesteps that translation entirely, matching how file-based -Source
+                # input is already handled above.
+                $tempDotPath = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.IO.Path]::GetRandomFileName()).dot"
+                try
                 {
-                    Write-Error -ErrorAction Stop -Exception ([System.Management.Automation.ParseException]::New())
+                    [System.IO.File]::WriteAllText($tempDotPath, $standardInput.ToString(), [System.Text.UTF8Encoding]::new($false))
+
+                    # @($arguments) forces array context: a single-flag $arguments (e.g. just
+                    # -Tsvg when -PassThru omits -o) would otherwise collapse to a scalar string,
+                    # making '+' concatenate the path onto the flag instead of appending an argument.
+                    $result = & $graphViz @(@($arguments) + $tempDotPath)
+                    if ($LastExitCode)
+                    {
+                        Write-Error -ErrorAction Stop -Exception ([System.Management.Automation.ParseException]::New())
+                    }
+                }
+                finally
+                {
+                    Remove-Item -Path $tempDotPath -ErrorAction SilentlyContinue
                 }
 
                 if ( $PassThru )
