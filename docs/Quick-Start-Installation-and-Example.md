@@ -1,12 +1,12 @@
 # Installing PSGraph
-Make sure you are running Powershell 5.0 (WMF 5.0). I don't know that it is a hard requirement at the moment but I plan on using 5.0 features.
-
-    # Install GraphViz from the Chocolatey repo
-    Register-PackageSource -Name Chocolatey -ProviderName Chocolatey -Location http://chocolatey.org/api/v2/
-    Find-Package graphviz | Install-Package -ForceBootstrap
+PSGraph requires PowerShell 7 or later (`pwsh`). Windows PowerShell 5.1 is not supported.
 
     # Install PSGraph from the Powershell Gallery
-    Find-Module PSGraph | Install-Module 
+    Find-Module PSGraph | Install-Module
+
+    # Install GraphViz - see Command-Install-GraphViz.md for details
+    Import-Module PSGraph
+    Install-GraphViz
 
 
 

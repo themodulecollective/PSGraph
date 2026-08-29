@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/cgo827o4f74lmf9w/branch/master?svg=true)](https://ci.appveyor.com/project/kevinmarquette/PSGraph/branch/master) [![Documentation Status](https://readthedocs.org/projects/psgraph/badge/?version=latest)](http://psgraph.readthedocs.io/en/latest/?badge=latest)
+[![CI](https://github.com/themodulecollective/PSGraph/actions/workflows/ci.yml/badge.svg)](https://github.com/themodulecollective/PSGraph/actions/workflows/ci.yml) [![Documentation Status](https://readthedocs.org/projects/psgraph/badge/?version=latest)](http://psgraph.readthedocs.io/en/latest/?badge=latest)
     
 
 # PSGraph
@@ -9,7 +9,7 @@ PSGraph is a helper module implemented as a DSL (Domain Specific Language) for g
 * [edge](http://psgraph.readthedocs.io/en/latest/Command-Edge/)
 * [node](http://psgraph.readthedocs.io/en/latest/Command-Node/)
 * [subgraph](http://psgraph.readthedocs.io/en/latest/Command-SubGraph/)
-* [rank](http://psgraph.readthedocs.io/en/latest/Command-Rank-Advanced/)
+* [rank](http://psgraph.readthedocs.io/en/latest/Command-Rank/)
 
 ## What is GraphViz?
 
@@ -17,6 +17,8 @@ PSGraph is a helper module implemented as a DSL (Domain Specific Language) for g
 
 ## Project status?
 Beta release. The core module work and documentation is fleshed out. The simple features are implemented but there are other features of the DOT language that I have not used much myself. The command names and arguments of the existing commands should be stable now. As always, more testing still needs to be done.
+
+See [CHANGELOG.md](CHANGELOG.md) for what's changed since the 2019 upstream baseline.
 
 # GraphViz and the Dot format basics
 The nice thing about GraphViz is that you can define nodes and edges with a simple text file in the Dot format. The GraphViz engine handles the layout, edge routing, rendering and creates an image for you. 
@@ -155,11 +157,7 @@ We can pull that all together and generate quite the data driven driven diagram.
 
 
 # Installing PSGraph
-Make sure you are running Powershell 5.0 (WMF 5.0). I don't know that it is a hard requirement at the moment but I plan on using 5.0 features.
-
-    # Install GraphViz from the Chocolatey repo
-    Register-PackageSource -Name Chocolatey -ProviderName Chocolatey -Location http://chocolatey.org/api/v2/
-    Find-Package graphviz | Install-Package -ForceBootstrap
+PSGraph requires PowerShell 7 or later (`pwsh`). Windows PowerShell 5.1 is not supported as of v3.0.0.
 
     # Install PSGraph from the Powershell Gallery
     Find-Module PSGraph | Install-Module
@@ -167,9 +165,9 @@ Make sure you are running Powershell 5.0 (WMF 5.0). I don't know that it is a ha
     # Import Module
     Import-Module PSGraph
 
-For OSX, you can use brew to install graphviz.
-
-    brew install graphviz
+    # Install GraphViz (Chocolatey on Windows, Homebrew on macOS; on Linux use your
+    # distro's package manager, e.g. `apt-get install graphviz`)
+    Install-GraphViz
 
 # Generating a graph image
 I am still working out the workflow for this, but for now just do this.
@@ -189,3 +187,9 @@ The export can be done more in line if needed.
     graph g {
         edge hello world
     } | Export-PSGraph -ShowGraph
+
+# Known limitations
+
+## `Node` name collision with Node.js tooling
+
+The bare `Node` command name can collide with Node.js-related tooling or autoload behavior present on some systems (see upstream issues [#109](https://github.com/KevinMarquette/PSGraph/issues/109) and [#59](https://github.com/KevinMarquette/PSGraph/issues/59)). This has been discussed upstream for years with no consensus reached. It is an intentionally deferred design question, not an oversight: renaming or aliasing `Node` is a breaking change to the DSL and will only happen as part of a deliberate major-version change with its own migration notes, not bundled into an unrelated fix.

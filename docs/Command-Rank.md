@@ -29,3 +29,18 @@ graph g {
 }
 
 This was added just to be consistent with the other commands.
+
+## Rank [string[]] -RankType [same|min|source|max|sink]
+
+By default, `rank` places the given nodes at the *same* level. GraphViz supports other rank constraints too, and `-RankType` exposes them:
+
+* `same` (default) - all nodes at the same level
+* `min` - nodes placed at the minimum rank
+* `source` - like `min`, but also constrains them to be rendered at the top/left
+* `max` - nodes placed at the maximum rank
+* `sink` - like `max`, but also constrains them to be rendered at the bottom/right
+
+    graph g {
+        rank 1,2,3 -RankType min
+        edge (1..3)
+    }
