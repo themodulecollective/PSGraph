@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Graphviz (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+
+      - name: Install Graphviz (macOS)
+        if: runner.os == 'macOS'
+        run: brew install graphviz
+
+      - name: Install Graphviz (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install graphviz -y --no-progress
+          # choco's PATH update isn't always visible to later steps in the same job.
+          'C:\Program Files\Graphviz\bin' | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: Verify dot is on PATH
+        shell: pwsh
+        run: dot -V
+
+      - name: Install PowerShell module dependencies
+        shell: pwsh
+        run: |
+          Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
+          Install-Module -Name Pester -RequiredVersion 5.7.1 -Scope CurrentUser -Force -SkipPublisherCheck -AllowClobber
+          Install-Module -Name PSScriptAnalyzer, DependsOn -Scope CurrentUser -Force -SkipPublisherCheck -AllowClobber
+
+      - name: Import module from source
+        shell: pwsh
+        run: |
+          Import-Module Pester -RequiredVersion 5.7.1 -Force
+          Import-Module ./PSGraph/PSGraph.psd1 -Force
+
+      - name: Run Pester tests
+        shell: pwsh
+        run: |
+          Import-Module Pester -RequiredVersion 5.7.1 -Force
+          Import-Module ./PSGraph/PSGraph.psd1 -Force
+
+          $config = New-PesterConfiguration
+          $config.Run.Path = 'Tests'
+          $config.Run.PassThru = $true
+          $config.Run.Exit = $false
+          $config.Output.Verbosity = 'Detailed'
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputFormat = 'NUnitXml'
+          $config.TestResult.OutputPath = "TestResults_$($env:RUNNER_OS).xml"
+
+          $results = Invoke-Pester -Configuration $config
+
+          if ($results.FailedCount -gt 0)
+          {
+              throw "Failed [$($results.FailedCount)] Pester tests."
+          }
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pester-results-${{ matrix.os }}
+          path: TestResults_*.xml

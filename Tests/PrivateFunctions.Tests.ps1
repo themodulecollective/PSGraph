@@ -21,7 +21,7 @@ InModuleScope -ModuleName PSGraph {
                 }
                 foreach ($layout in $layoutEngine.GetEnumerator())
                 {
-                    Get-LayoutEngine -Name $layout.name | Should be $layout.value
+                    Get-LayoutEngine -Name $layout.name | Should -be $layout.value
                 }
             }
         }
@@ -30,13 +30,13 @@ InModuleScope -ModuleName PSGraph {
 
             It "Should not throw an error" {
 
-                {Get-ArgumentLookUpTable} | Should Not Throw
+                {Get-ArgumentLookUpTable} | Should -Not -Throw
             }
 
             It "Processes a hashtable" {
                 $result = Get-ArgumentLookUpTable
-                $result | Should Not BeNullOrEmpty
-                $result.gettype().name | Should Be 'Hashtable'
+                $result | Should -Not -BeNullOrEmpty
+                $result.gettype().name | Should -Be 'Hashtable'
             }
         }
 
@@ -44,49 +44,49 @@ InModuleScope -ModuleName PSGraph {
         Context "Get-GraphVizArgument" {
 
             It "Does not throw an error" {
-                {Get-GraphVizArgument} | Should Not Throw
+                {Get-GraphVizArgument} | Should -Not -Throw
             }
 
             It "Should not throw an error with empty hashtable" {
-                {Get-GraphVizArgument @{}} | Should Not Throw
+                {Get-GraphVizArgument @{}} | Should -Not -Throw
             }
 
             It "Should not throw an error with hashtable" {
-                {Get-GraphVizArgument @{OutputFormat = 'png'}} | Should Not Throw
+                {Get-GraphVizArgument @{OutputFormat = 'png'}} | Should -Not -Throw
             }
         }
 
         Context "Get-OutputFormatFromPath" {
 
             It "Does not throw an error" {
-                {Get-OutputFormatFromPath $null} | Should Not Throw
+                {Get-OutputFormatFromPath $null} | Should -Not -Throw
             }
             It "Can detect a png file" {
-                Get-OutputFormatFromPath 'test.png' | Should Be 'png'
+                Get-OutputFormatFromPath 'test.png' | Should -Be 'png'
             }
             It "Can detect a jpg file" {
-                Get-OutputFormatFromPath 'test.jpg' | Should Be 'jpg'
+                Get-OutputFormatFromPath 'test.jpg' | Should -Be 'jpg'
             }
             It "Handles no match correctly" {
-                Get-OutputFormatFromPath 'test.notapath' | Should BeNullOrEmpty
+                Get-OutputFormatFromPath 'test.notapath' | Should -BeNullOrEmpty
             }
         }
 
         Context "Get-TranslatedArguments" {
 
             It "Does not throw an error" {
-                {Get-TranslatedArgument} | Should Not Throw
+                {Get-TranslatedArgument} | Should -Not -Throw
             }
             It "Translates DestinationPath" {
-                Get-TranslatedArgument @{DestinationPath = 'test.png'} | Should be '-otest.png'
-                Get-TranslatedArgument @{DestinationPath = 'test.png'} | Should not be '-o test.png'
+                Get-TranslatedArgument @{DestinationPath = 'test.png'} | Should -Be '-otest.png'
+                Get-TranslatedArgument @{DestinationPath = 'test.png'} | Should -Not -Be '-o test.png'
             }
         }
 
         Context "Update-DefaultArgument" {
 
             It "Does not throw an error" {
-                {Update-DefaultArgument @{}} | Should Not Throw
+                {Update-DefaultArgument @{}} | Should -Not -Throw
             }
         }
 
@@ -97,49 +97,49 @@ InModuleScope -ModuleName PSGraph {
             }
 
             It "not throw an error" {
-                {Format-Value test} | Should Not Throw
+                {Format-Value test} | Should -Not -Throw
             }
 
             It "not throw an error for edges" {
-                {Format-Value test -edge} | Should Not Throw
+                {Format-Value test -edge} | Should -Not -Throw
             }
 
             It "not throw an error for node" {
-                {Format-Value test -edge} | Should Not Throw
+                {Format-Value test -edge} | Should -Not -Throw
             }
 
             It "format basic strings with quotes" {
-                Format-Value test | Should Be '"test"'
-                Format-Value test -node | Should Be '"test"'
-                Format-Value test -edge | Should Be '"test"'
+                Format-Value test | Should -Be '"test"'
+                Format-Value test -node | Should -Be '"test"'
+                Format-Value test -edge | Should -Be '"test"'
             }
 
             It "format basic strings with spaces in quotes" {
-                Format-Value 'test value' | Should Be '"test value"'
-                Format-Value 'test value' -node | Should Be '"test value"'
-                Format-Value 'test value' -edge | Should Be '"test value"'
+                Format-Value 'test value' | Should -Be '"test value"'
+                Format-Value 'test value' -node | Should -Be '"test value"'
+                Format-Value 'test value' -edge | Should -Be '"test value"'
             }
 
             It "format basic strings with a colin correctly" {
-                Format-Value 'test:value' | Should Be '"test:value"'
-                Format-Value 'test:value' -node | Should Be '"test:value"'
-                Format-Value 'test:value' -edge | Should Be '"test":value'
-                Format-Value 'test value2:value' -edge | Should Be '"test value2":value'
+                Format-Value 'test:value' | Should -Be '"test:value"'
+                Format-Value 'test:value' -node | Should -Be '"test:value"'
+                Format-Value 'test:value' -edge | Should -Be '"test":value'
+                Format-Value 'test value2:value' -edge | Should -Be '"test value2":value'
             }
 
             It "Uses custom format script correctly" {
                 Set-NodeFormatScript -ScriptBlock {'NewValue'}
-                Format-Value 'test' | Should BeExactly '"test"'
-                Format-Value 'test' -node | Should BeExactly '"NewValue"'
-                Format-Value 'test' -edge | Should BeExactly '"NewValue"'
+                Format-Value 'test' | Should -BeExactly '"test"'
+                Format-Value 'test' -node | Should -BeExactly '"NewValue"'
+                Format-Value 'test' -edge | Should -BeExactly '"NewValue"'
 
                 Set-NodeFormatScript -ScriptBlock {$_.ToUpper()}
-                Format-Value 'test' | Should BeExactly '"test"'
-                Format-Value 'test' -node | Should BeExactly '"TEST"'
-                Format-Value 'test' -edge | Should BeExactly '"TEST"'
-                Format-Value 'test' | Should Not BeExactly '"TEST"'
-                Format-Value 'test' -node | Should Not BeExactly '"test"'
-                Format-Value 'test' -edge | Should Not BeExactly '"test"'
+                Format-Value 'test' | Should -BeExactly '"test"'
+                Format-Value 'test' -node | Should -BeExactly '"TEST"'
+                Format-Value 'test' -edge | Should -BeExactly '"TEST"'
+                Format-Value 'test' | Should -Not -BeExactly '"TEST"'
+                Format-Value 'test' -node | Should -Not -BeExactly '"test"'
+                Format-Value 'test' -edge | Should -Not -BeExactly '"test"'
                 Set-NodeFormatScript
             }
 
@@ -149,43 +149,43 @@ InModuleScope -ModuleName PSGraph {
 
             It "Should not throw an error" {
 
-                {ConvertTo-GraphVizAttribute} | Should Not Throw
+                {ConvertTo-GraphVizAttribute} | Should -Not -Throw
             }
 
             It "Creates well formatted attribute" {
-                ConvertTo-GraphVizAttribute @{label = 'test'} | Should Match '\[label="test";\]'
+                ConvertTo-GraphVizAttribute @{label = 'test'} | Should -Match '\[label="test";\]'
             }
 
             It "Creates well formatted attribute with special characters" {
-                ConvertTo-GraphVizAttribute @{label = 'test label'} | Should Match '\[label="test label";\]'
+                ConvertTo-GraphVizAttribute @{label = 'test label'} | Should -Match '\[label="test label";\]'
             }
 
             It "Creates well formatted attribute for html tables" {
-                ConvertTo-GraphVizAttribute @{label = '<table>test label</table>'} | Should Match '\[label=<<table>test label</table>>;\]'
+                ConvertTo-GraphVizAttribute @{label = '<table>test label</table>'} | Should -Match '\[label=<<table>test label</table>>;\]'
             }
 
             It "Creates multiple attributes" {
                 $result = ConvertTo-GraphVizAttribute @{label = 'test'; arrowsize = '2'}
 
-                $result | Should Match '\['
-                $result | Should Match 'label="test";'
-                $result | Should Match 'arrowsize="2";'
-                $result | Should Match ';\]'
+                $result | Should -Match '\['
+                $result | Should -Match 'label="test";'
+                $result | Should -Match 'arrowsize="2";'
+                $result | Should -Match ';\]'
             }
 
             It "Places graphstyle attributes on multiple lines" {
                 $result = ConvertTo-GraphVizAttribute @{label = 'test'; arrowsize = '2'} -UseGraphStyle
-                $result.count | Should Be 2
+                $result.count | Should -Be 2
             }
 
             It "Creates scripted attribute on an object" {
                 $object = [pscustomobject]@{description = 'test'}
-                ConvertTo-GraphVizAttribute @{label = {$_.description}} -InputObject $object | Should Match '\[label="test";\]'
+                ConvertTo-GraphVizAttribute @{label = {$_.description}} -InputObject $object | Should -Match '\[label="test";\]'
             }
 
             It "Creates scripted attribute on a hashtable" {
                 $object = @{description = 'test'}
-                ConvertTo-GraphVizAttribute @{label = {$_.description}} -InputObject $object | Should Match '\[label="test";\]'
+                ConvertTo-GraphVizAttribute @{label = {$_.description}} -InputObject $object | Should -Match '\[label="test";\]'
             }
         }
     }

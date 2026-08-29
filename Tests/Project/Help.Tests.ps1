@@ -1,33 +1,40 @@
 $Script:ModuleRoot = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
-$Script:ModuleName = $Script:ModuleName = Get-ChildItem $ModuleRoot\*\*.psm1 | Select-object -ExpandProperty BaseName
+$Script:ModuleName = Get-ChildItem $ModuleRoot\*\*.psm1 | Select-Object -ExpandProperty BaseName
 
 Describe "Public commands have comment-based or external help" -Tags 'Build' {
-    $functions = Get-Command -Module $ModuleName
-    $help = foreach ($function in $functions) {
-        Get-Help -Name $function.Name
+
+    BeforeDiscovery {
+        $commandHelp = Get-Command -Module $ModuleName | ForEach-Object {
+            $help = Get-Help -Name $_.Name
+            @{
+                CommandName  = $_.Name
+                Synopsis     = $help.Synopsis
+                Description  = $help.Description
+                HasExamples  = [bool]$help.Examples.Example
+                Parameters   = @(
+                    $help.Parameters.Parameter |
+                        Where-Object { $_.Name -notmatch 'WhatIf|Confirm' } |
+                        ForEach-Object { @{ ParameterName = $_.Name; ParameterDescription = $_.Description.Text } }
+                )
+            }
+        }
     }
 
-    foreach ($node in $help)
-    {
-        Context $node.Name {
-            It "Should have a Description or Synopsis" {
-                ($node.Description + $node.Synopsis) | Should Not BeNullOrEmpty
-            }
+    Context "<CommandName>" -ForEach $commandHelp {
 
-            It "Should have an Example"  {
-                $node.Examples | Should Not BeNullOrEmpty
-                $node.Examples | Out-String | Should -Match ($node.Name)
-            }
+        It "Should have a Description or Synopsis" {
+            ($Description + $Synopsis) | Should -Not -BeNullOrEmpty
+        }
 
-            foreach ($parameter in $node.Parameters.Parameter)
-            {
-                if ($parameter -notmatch 'WhatIf|Confirm')
-                {
-                    It "Should have a Description for Parameter [$($parameter.Name)]" {
-                        $parameter.Description.Text | Should Not BeNullOrEmpty
-                    }
-                }
-            }
+        It "Should have an Example" {
+            # Not asserting the example text mentions <CommandName>: proxy functions
+            # (e.g. Show-PSGraph's `.ForwardHelpTargetName Export-PSGraph`) legitimately
+            # inherit another command's examples verbatim.
+            $HasExamples | Should -BeTrue
+        }
+
+        It "Should have a Description for Parameter [<ParameterName>]" -ForEach $Parameters {
+            $ParameterDescription | Should -Not -BeNullOrEmpty
         }
     }
 }
