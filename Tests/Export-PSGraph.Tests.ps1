@@ -17,7 +17,7 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
     Context "Basic features" {
 
         It "Converts file to image" {
-            $path = "$testdrive\g.dot"
+            $path = Join-Path $testdrive "g.dot"
             Set-Content -Path $path -Value $dot
             Export-PSGraph -SourcePath $path -OutputFormat png
 
@@ -25,7 +25,7 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
         }
 
         It "Converts file to image over pipe" {
-            $path = "$testdrive\g2.dot"
+            $path = Join-Path $testdrive "g2.dot"
             Set-Content -Path $path -Value $dot
             $path | Export-PSGraph -OutputFormat png
 
@@ -64,7 +64,7 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
 
         It "Exports successfully even when the caller's `$OutputEncoding would inject a BOM" {
             $OutputEncoding = [System.Text.UTF8Encoding]::new($true)
-            $path = "$testdrive\bom.dot"
+            $path = Join-Path $testdrive "bom.dot"
 
             { Export-PSGraph -Source $dot -DestinationPath $path -OutputFormat dot -ErrorAction Stop } | Should -Not -Throw
 
@@ -77,7 +77,7 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
 
         It "Round-trips accented/non-ASCII labels through dot without garbling" {
             $accented = graph g { node cafe @{label = 'héllo wörld'} }
-            $path = "$testdrive\accented.dot"
+            $path = Join-Path $testdrive "accented.dot"
 
             Export-PSGraph -Source $accented -DestinationPath $path -OutputFormat dot
 
@@ -89,11 +89,11 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
     Context "#75 #88 #85 Graphviz path detection" {
 
         It "Finds dot via PATH when -GraphVizPath is not specified" {
-            { Export-PSGraph -Source $dot -DestinationPath "$testdrive\pathlookup.png" -ErrorAction Stop } | Should -Not -Throw
+            { Export-PSGraph -Source $dot -DestinationPath (Join-Path $testdrive "pathlookup.png") -ErrorAction Stop } | Should -Not -Throw
         }
 
         It "Honors an explicitly-supplied -GraphVizPath instead of silently falling back to PATH" {
-            { Export-PSGraph -Source $dot -DestinationPath "$testdrive\badpath.png" -GraphVizPath 'C:\does\not\exist\dot.exe' -ErrorAction Stop } | Should -Throw
+            { Export-PSGraph -Source $dot -DestinationPath (Join-Path $testdrive "badpath.png") -GraphVizPath 'C:\does\not\exist\dot.exe' -ErrorAction Stop } | Should -Throw
         }
     }
 }

@@ -17,7 +17,7 @@ Describe "$ModuleName Show-PSGraph" -Tag graphviz {
     Context "Basic features" {
 
         It "Converts file to image" {
-            $path = "$testdrive\g.dot"
+            $path = Join-Path $testdrive "g.dot"
             Set-Content -Path $path -Value $dot
             Show-PSGraph -SourcePath $path -OutputFormat png
 
@@ -25,7 +25,7 @@ Describe "$ModuleName Show-PSGraph" -Tag graphviz {
         }
 
         It "Converts file to image over pipe" {
-            $path = "$testdrive\g2.dot"
+            $path = Join-Path $testdrive "g2.dot"
             Set-Content -Path $path -Value $dot
             $path | Show-PSGraph -OutputFormat png
 
