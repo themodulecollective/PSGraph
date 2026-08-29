@@ -23,6 +23,11 @@ function Record
     .PARAMETER ScriptBlock
     A sub expression that contains Row commands
 
+    .PARAMETER TableAttributes
+    HTML attributes applied to the record's outer <TABLE> element, e.g.
+    @{ CELLBORDER = 0 } to hide the borders between every row in one call.
+    Defaults to today's fixed CELLBORDER=1/BORDER=0/CELLSPACING=0 look.
+
     .EXAMPLE
     graph {
 
@@ -85,7 +90,12 @@ function Record
         $RowScript,
 
         [string]
-        $Label
+        $Label,
+
+        # HTML attributes for the outer <TABLE> element, e.g. @{ CELLBORDER = 0 } to hide
+        # borders between every row in one call (#81)
+        [hashtable]
+        $TableAttributes = @{ CELLBORDER = 1; BORDER = 0; CELLSPACING = 0 }
     )
     begin
     {
@@ -122,7 +132,8 @@ function Record
     }
     end
     {
-        $html = '<TABLE CELLBORDER="1" BORDER="0" CELLSPACING="0"><TR><TD bgcolor="black" align="center"><font color="white"><B>{0}</B></font></TD></TR>{1}</TABLE>' -f $Label, ($tableData -join '')
+        $tableAttributeString = ($TableAttributes.GetEnumerator() | ForEach-Object { ' {0}="{1}"' -f $_.Key.ToString().ToUpper(), $_.Value }) -join ''
+        $html = '<TABLE{0}><TR><TD bgcolor="black" align="center"><font color="white"><B>{1}</B></font></TD></TR>{2}</TABLE>' -f $tableAttributeString, $Label, ($tableData -join '')
         Node $Name @{label = $html; shape = 'none'; fontname = "Courier New"; style = "filled"; penwidth = 1; fillcolor = "white"}
     }
 }

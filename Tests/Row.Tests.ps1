@@ -49,4 +49,15 @@ Describe "Function Row" {
             Row Test | Should -Be '<TR><TD PORT="Test" ALIGN="LEFT">Test</TD></TR>'
         }
     }
+
+    Context "#81 Row -Separator" {
+
+        It 'emits a divider row with no label required' {
+            Row -Separator | Should -Be '<TR><TD BORDER="0" CELLPADDING="0" HEIGHT="1" BGCOLOR="gray"></TD></TR>'
+        }
+
+        It 'rejects combining -Separator with -Label' {
+            { Row Test -Separator } | Should -Throw
+        }
+    }
 }

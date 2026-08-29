@@ -12,7 +12,7 @@
     RootModule        = 'PSGraph.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '3.0.0'
+    ModuleVersion     = '3.1.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = @('Edge','Entity','Export-PSGraph','Graph','Inline','Install-GraphViz','New-EdgeAttributeSet','New-NodeAttributeSet','Node','Rank','Record','Row','Set-NodeFormatScript','Show-PSGraph','SubGraph')
+    FunctionsToExport = @('Cells','Edge','Entity','Export-PSGraph','Graph','Inline','Install-GraphViz','New-EdgeAttributeSet','New-NodeAttributeSet','Node','Rank','Record','Row','Set-NodeFormatScript','Show-PSGraph','SubGraph')
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport   = @()
@@ -78,7 +78,11 @@
     VariablesToExport = '*'
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-    AliasesToExport   = @('digraph', 'NodeAttributes', 'EdgeAttributes')
+    AliasesToExport   = @(
+        'digraph', 'NodeAttributes', 'EdgeAttributes',
+        'jpgGraph', 'pngGraph', 'gifGraph', 'imapGraph', 'cmapxGraph',
+        'jp2Graph', 'jsonGraph', 'pdfGraph', 'plainGraph', 'dotGraph', 'svgGraph'
+    )
 
     # DSC resources to export from this module
     # DscResourcesToExport = @()
@@ -108,6 +112,17 @@
 
             # ReleaseNotes of this module
             ReleaseNotes = @'
+3.1.0 20260829
+* Format-Value: fixed HTML-like label detection so any valid GraphViz
+  HTML-like label round-trips, not just ones starting with <table (#100)
+* Record: added -TableAttributes to control the outer <TABLE> element,
+  e.g. hiding borders between every row in one call (#81)
+* Row: added -Separator to emit a dedicated thin divider row (#81)
+* Cells: new command converting pipeline objects into HTML table rows
+  for use inside a Record
+* Export-PSGraph: added format-specific aliases (pngGraph, svgGraph,
+  dotGraph, etc., one per -OutputFormat value)
+
 3.0.0 20260829
 BREAKING: PowerShell 7+ is now required; Windows PowerShell 5.1 is no
 longer supported. See CHANGELOG.md for the full list of fixes and

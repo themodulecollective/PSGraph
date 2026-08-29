@@ -143,6 +143,15 @@ InModuleScope -ModuleName PSGraph {
                 Format-Value 'test:1abc' -edge | Should -Be '"test":"1abc"'
             }
 
+            It "#100 recognizes HTML-like labels that don't start with <table" {
+                Format-Value '<b>bold</b>' | Should -Be '<<b>bold</b>>'
+                Format-Value "<The <font color='red'><b>foo</b></font>>" | Should -Be "<<The <font color='red'><b>foo</b></font>>>"
+            }
+
+            It "#100 still recognizes <table> HTML labels" {
+                Format-Value '<table>test label</table>' | Should -Be '<<table>test label</table>>'
+            }
+
             It "Uses custom format script correctly" {
                 Set-NodeFormatScript -ScriptBlock {'NewValue'}
                 Format-Value 'test' | Should -BeExactly '"test"'
@@ -178,6 +187,10 @@ InModuleScope -ModuleName PSGraph {
 
             It "Creates well formatted attribute for html tables" {
                 ConvertTo-GraphVizAttribute @{label = '<table>test label</table>'} | Should -Match '\[label=<<table>test label</table>>;\]'
+            }
+
+            It "#100 creates well formatted attribute for non-table HTML-like labels" {
+                ConvertTo-GraphVizAttribute @{label = '<b>bold</b>'} | Should -Match '\[label=<<b>bold</b>>;\]'
             }
 
             It "Creates multiple attributes" {

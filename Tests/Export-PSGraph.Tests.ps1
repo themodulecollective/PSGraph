@@ -127,6 +127,24 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
         }
     }
 
+    Context "Phase 5 format-specific export aliases" {
+
+        It "svgGraph infers -OutputFormat svg" {
+            $result = $dot | svgGraph -PassThru
+            ($result -join "`n") | Should -Match '<svg'
+        }
+
+        It "dotGraph infers -OutputFormat dot" {
+            $result = $dot | dotGraph -PassThru
+            ($result -join "`n") | Should -Match 'digraph'
+        }
+
+        It "an explicit -OutputFormat still overrides the alias-inferred one" {
+            $result = $dot | pngGraph -OutputFormat svg -PassThru
+            ($result -join "`n") | Should -Match '<svg'
+        }
+    }
+
     Context "PR #112 non-admin Install-GraphViz install locations" {
 
         It "Includes the Install-GraphViz -Scope CurrentUser NuGet package location in the default search paths" {
