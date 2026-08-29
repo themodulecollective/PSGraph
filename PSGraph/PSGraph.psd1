@@ -15,7 +15,7 @@
     ModuleVersion     = '3.1.0'
 
     # Supported PSEditions
-    # CompatiblePSEditions = @()
+    CompatiblePSEditions = @('Desktop', 'Core')
 
     # ID used to uniquely identify this module
     GUID              = '03a82298-c9af-48b5-b607-72988687759b'
@@ -33,7 +33,7 @@
     Description       = 'Builds graphs using GraphViz'
 
     # Minimum version of the Windows PowerShell engine required by this module
-    PowerShellVersion = '7.0'
+    PowerShellVersion = '5.1'
 
     # Name of the Windows PowerShell host required by this module
     # PowerShellHostName = ''
@@ -122,11 +122,11 @@
   for use inside a Record
 * Export-PSGraph: added format-specific aliases (pngGraph, svgGraph,
   dotGraph, etc., one per -OutputFormat value)
+* Restored Windows PowerShell 5.1 support (CompatiblePSEditions is now
+  Desktop and Core; PowerShellVersion lowered back to 5.1)
 
 3.0.0 20260829
-BREAKING: PowerShell 7+ is now required; Windows PowerShell 5.1 is no
-longer supported. See CHANGELOG.md for the full list of fixes and
-features in this release.
+See CHANGELOG.md for the full list of fixes and features in this release.
 * Export-PSGraph: fixed -ShowGraph on paths with spaces, fixed BOM/
   non-ASCII output breaking dot on some platforms, added cross-platform
   `dot` auto-detection via Get-Command, added -PassThru for in-memory

@@ -24,6 +24,11 @@ forked from the then-dormant `KevinMarquette/PSGraph`.
   static `[Alias(...)]` pattern instead of the original's runtime
   `New-Alias -Scope Global` loop (which also collided with `Graph`'s
   existing `DiGraph` alias).
+- Windows PowerShell 5.1 support is restored. `PSGraph.psd1`'s
+  `PowerShellVersion` is back to `5.1` and `CompatiblePSEditions` now
+  lists both `Desktop` and `Core`. The module's only edition-sensitive
+  line, `Install-GraphViz`'s OS check, now guards its `$IsMacOS`
+  reference instead of relying on undefined-variable-as-falsy.
 
 ### Fixed
 
@@ -33,11 +38,6 @@ forked from the then-dormant `KevinMarquette/PSGraph`.
   corrupted by quote-escaping. (#100)
 
 ## 3.0.0 - 2026-08-29
-
-### Breaking
-
-- **PowerShell 7+ is now required.** Windows PowerShell 5.1 is no longer
-  supported. `PSGraph.psd1`'s `PowerShellVersion` is now pinned to `7.0`.
 
 ### Added
 

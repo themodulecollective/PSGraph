@@ -85,3 +85,66 @@ jobs:
         with:
           name: pester-results-${{ matrix.os }}
           path: TestResults_*.xml
+
+  test-windows-desktop:
+    name: Test (windows-latest, Windows PowerShell 5.1)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Graphviz (Windows)
+        shell: powershell
+        run: |
+          choco install graphviz -y --no-progress
+          # choco's PATH update isn't always visible to later steps in the same job.
+          'C:\Program Files\Graphviz\bin' | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: Verify dot is on PATH
+        shell: powershell
+        run: dot -V
+
+      - name: Install PowerShell module dependencies
+        shell: powershell
+        run: |
+          Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
+          Install-Module -Name Pester -RequiredVersion 5.7.1 -Scope CurrentUser -Force -SkipPublisherCheck -AllowClobber
+          Install-Module -Name PSScriptAnalyzer -RequiredVersion 1.25.0 -Scope CurrentUser -Force -SkipPublisherCheck -AllowClobber
+          Install-Module -Name DependsOn -Scope CurrentUser -Force -SkipPublisherCheck -AllowClobber
+
+      - name: Import module from source
+        shell: powershell
+        run: |
+          Import-Module Pester -RequiredVersion 5.7.1 -Force
+          Import-Module ./PSGraph/PSGraph.psd1 -Force
+
+      - name: Run Pester tests
+        shell: powershell
+        run: |
+          Import-Module Pester -RequiredVersion 5.7.1 -Force
+          Import-Module PSScriptAnalyzer -RequiredVersion 1.25.0 -Force
+          Import-Module ./PSGraph/PSGraph.psd1 -Force
+
+          $config = New-PesterConfiguration
+          $config.Run.Path = 'Tests'
+          $config.Run.PassThru = $true
+          $config.Run.Exit = $false
+          $config.Output.Verbosity = 'Detailed'
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputFormat = 'NUnitXml'
+          $config.TestResult.OutputPath = "TestResults_WindowsDesktop.xml"
+
+          $results = Invoke-Pester -Configuration $config
+
+          if ($results.FailedCount -gt 0)
+          {
+              throw "Failed [$($results.FailedCount)] Pester tests."
+          }
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pester-results-windows-desktop
+          path: TestResults_*.xml

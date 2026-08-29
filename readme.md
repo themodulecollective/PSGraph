@@ -157,7 +157,7 @@ We can pull that all together and generate quite the data driven driven diagram.
 
 
 # Installing PSGraph
-PSGraph requires PowerShell 7 or later (`pwsh`). Windows PowerShell 5.1 is not supported as of v3.0.0.
+PSGraph supports Windows PowerShell 5.1+ and PowerShell 7+, on Windows, Linux, and macOS.
 
     # Install PSGraph from the Powershell Gallery
     Find-Module PSGraph | Install-Module

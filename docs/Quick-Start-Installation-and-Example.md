@@ -1,5 +1,5 @@
 # Installing PSGraph
-PSGraph requires PowerShell 7 or later (`pwsh`). Windows PowerShell 5.1 is not supported.
+PSGraph supports Windows PowerShell 5.1+ and PowerShell 7+, on Windows, Linux, and macOS.
 
     # Install PSGraph from the Powershell Gallery
     Find-Module PSGraph | Install-Module
