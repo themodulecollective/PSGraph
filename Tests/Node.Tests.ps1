@@ -4,24 +4,24 @@ Describe 'Function Node' -Tag Build {
 
         it "Node alias should not throw an error" {
 
-            {Node TestNode } | Should Not Throw
+            {Node TestNode } | Should -Not -Throw
         }
 
         it "Node attributes should not throw an error" {
 
-            {Node TestNode @{shape = 'rectangle'}} | Should Not Throw
+            {Node TestNode @{shape = 'rectangle'}} | Should -Not -Throw
         }
 
         It "Creates a simple node" {
-            Node TestNode | Should Match 'TestNode'
+            Node TestNode | Should -Match 'TestNode'
         }
 
         It "Creates a node with attributes" {
-            Node TestNode @{shape = 'rectangle'} | Should Match '"TestNode" \[shape="rectangle";\]'
+            Node TestNode @{shape = 'rectangle'} | Should -Match '"TestNode" \[shape="rectangle";\]'
             $result = Node TestNode @{shape = 'rectangle'; label = "myTest"}
-            $result | Should Match '"TestNode" \[.*=".*";.*=".*";\]'
-            $result | Should Match 'shape="rectangle";'
-            $result | Should Match 'label="myTest";'
+            $result | Should -Match '"TestNode" \[.*=".*";.*=".*";\]'
+            $result | Should -Match 'shape="rectangle";'
+            $result | Should -Match 'label="myTest";'
         }
     }
 
@@ -30,16 +30,16 @@ Describe 'Function Node' -Tag Build {
 
         It "Can define multiple nodes at once" {
 
-            {Node (1..5)} | Should Not Throw
+            {Node (1..5)} | Should -Not -Throw
 
             $result = Node (1..5)
-            $result | Should not Be NullOrEmpty
-            $result.count | Should be 5
-            $result[0] | Should match '1'
-            $result[4] | Should match '5'
+            $result | Should -Not -BeNullOrEmpty
+            $result.count | Should -Be 5
+            $result[0] | Should -Match '1'
+            $result[4] | Should -Match '5'
 
-            {node one, two, three, four} | Should Not Throw
-            {node @(Write-Output one two three four)} | Should Not Throw
+            {node one, two, three, four} | Should -Not -Throw
+            {node @(Write-Output one two three four)} | Should -Not -Throw
         }
 
         It "Supports Node scriptblocks" {
@@ -55,15 +55,15 @@ Describe 'Function Node' -Tag Build {
         It "Supports -ranked swtich with multiple nodes #43" {
             $testNode = 'Test123'
             $result = Node one, two, $testNode -Ranked
-            $result | Out-String | Should match 'rank'
-            ($result -match $testNode).count | Should Be 2
+            $result | Out-String | Should -Match 'rank'
+            ($result -match $testNode).count | Should -Be 2
         }
 
         It "-ranked with one node should not create a rank #43" {
             $testNode = 'Test456'
             $result = Node $testNode
-            $result | Out-String | Should not match 'rank'
-            ($result -match $testNode).count | Should Be 1
+            $result | Out-String | Should -Not -Match 'rank'
+            ($result -match $testNode).count | Should -Be 1
         }
 
         It "should handle URLs for nodes" {

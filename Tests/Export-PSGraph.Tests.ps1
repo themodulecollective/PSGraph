@@ -7,9 +7,11 @@ $moduleName = Split-Path $moduleRoot -Leaf
 # This one is not tagged with Build because it requires GraphViz
 Describe "$ModuleName Export-PSGraph" -Tag graphviz {
 
-    $dot = graph g {
-        node 2 @{shape = 'house'}
-        edge 2, 4, 8, 16
+    BeforeAll {
+        $dot = graph g {
+            node 2 @{shape = 'house'}
+            edge 2, 4, 8, 16
+        }
     }
 
     Context "Basic features" {
@@ -19,7 +21,7 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
             Set-Content -Path $path -Value $dot
             Export-PSGraph -SourcePath $path -OutputFormat png
 
-            "$path.png" | Should Exist
+            "$path.png" | Should -Exist
         }
 
         It "Converts file to image over pipe" {
@@ -27,7 +29,7 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
             Set-Content -Path $path -Value $dot
             $path | Export-PSGraph -OutputFormat png
 
-            "$path.png" | Should Exist
+            "$path.png" | Should -Exist
         }
     }
 
@@ -38,9 +40,9 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
             New-Item -ItemType Directory -Path $dir -Force | Out-Null
             $path = Join-Path $dir "spaced graph.png"
 
-            { Export-PSGraph -Source $dot -DestinationPath $path -ErrorAction Stop } | Should Not Throw
+            { Export-PSGraph -Source $dot -DestinationPath $path -ErrorAction Stop } | Should -Not -Throw
 
-            $path | Should Exist
+            $path | Should -Exist
         }
 
         It "-ShowGraph launches a destination path containing spaces without throwing" {
@@ -48,9 +50,9 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
             New-Item -ItemType Directory -Path $dir -Force | Out-Null
             $path = Join-Path $dir "spaced graph.png"
 
-            { Export-PSGraph -Source $dot -DestinationPath $path -ShowGraph -ErrorAction Stop } | Should Not Throw
+            { Export-PSGraph -Source $dot -DestinationPath $path -ShowGraph -ErrorAction Stop } | Should -Not -Throw
 
-            $path | Should Exist
+            $path | Should -Exist
         }
     }
 
@@ -64,10 +66,10 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
             $OutputEncoding = [System.Text.UTF8Encoding]::new($true)
             $path = "$testdrive\bom.dot"
 
-            { Export-PSGraph -Source $dot -DestinationPath $path -OutputFormat dot -ErrorAction Stop } | Should Not Throw
+            { Export-PSGraph -Source $dot -DestinationPath $path -OutputFormat dot -ErrorAction Stop } | Should -Not -Throw
 
             $bytes = [System.IO.File]::ReadAllBytes($path)
-            ($bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) | Should Be $false
+            ($bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) | Should -Be $false
         }
     }
 
@@ -80,18 +82,18 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
             Export-PSGraph -Source $accented -DestinationPath $path -OutputFormat dot
 
             $text = [System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
-            $text | Should Match 'héllo wörld'
+            $text | Should -Match 'héllo wörld'
         }
     }
 
     Context "#75 #88 #85 Graphviz path detection" {
 
         It "Finds dot via PATH when -GraphVizPath is not specified" {
-            { Export-PSGraph -Source $dot -DestinationPath "$testdrive\pathlookup.png" -ErrorAction Stop } | Should Not Throw
+            { Export-PSGraph -Source $dot -DestinationPath "$testdrive\pathlookup.png" -ErrorAction Stop } | Should -Not -Throw
         }
 
         It "Honors an explicitly-supplied -GraphVizPath instead of silently falling back to PATH" {
-            { Export-PSGraph -Source $dot -DestinationPath "$testdrive\badpath.png" -GraphVizPath 'C:\does\not\exist\dot.exe' -ErrorAction Stop } | Should Throw
+            { Export-PSGraph -Source $dot -DestinationPath "$testdrive\badpath.png" -GraphVizPath 'C:\does\not\exist\dot.exe' -ErrorAction Stop } | Should -Throw
         }
     }
 }

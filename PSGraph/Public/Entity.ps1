@@ -45,6 +45,7 @@ Function Entity
     .NOTES
     General notes
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseProcessBlockForPipelineCommand", "", Justification = "Converts one InputObject into one Record by design; not a batch/collection cmdlet.")]
     [CmdletBinding()]
     param (
         [parameter(
@@ -83,8 +84,8 @@ Function Entity
         {
             if ($null -ne $Property)
             {
-                $matches = $property | Where-Object {$propertyName -like $_}
-                if ($null -eq $matches)
+                $matchingProperties = $property | Where-Object {$propertyName -like $_}
+                if ($null -eq $matchingProperties)
                 {
                     continue
                 }

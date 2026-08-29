@@ -4,30 +4,19 @@ $moduleName = Split-Path $moduleRoot -Leaf
 
 Describe "PSScriptAnalyzer rule-sets" -Tag Build {
 
-    $Rules = Get-ScriptAnalyzerRule
-    $scripts = Get-ChildItem $moduleRoot -Include *.ps1, *.psm1, *.psd1 -Recurse | where fullname -notmatch 'classes'
+    BeforeDiscovery {
+        $scripts = Get-ChildItem $moduleRoot -Include *.ps1, *.psm1, *.psd1 -Recurse |
+            Where-Object FullName -notmatch 'classes' |
+            ForEach-Object { @{ ScriptPath = $_.FullName } }
+    }
 
-    foreach ( $Script in $scripts )
-    {
-        Context "Script '$($script.FullName)'" {
-            $results = Invoke-ScriptAnalyzer -Path $script.FullName -includeRule $Rules
-            if ($results)
-            {
-                foreach ($rule in $results)
-                {
-                    It $rule.RuleName {
-                        $message = "{0} Line {1}: {2}" -f $rule.Severity, $rule.Line, $rule.message
-                        $message | Should Be ""
-                    }
+    Context "Script '<ScriptPath>'" -ForEach $scripts {
 
-                }
-            }
-            else
-            {
-                It "Should not fail any rules" {
-                    $results | Should BeNullOrEmpty
-                }
-            }
+        It "Should not fail any ScriptAnalyzer rules" {
+            $rules = Get-ScriptAnalyzerRule
+            $results = Invoke-ScriptAnalyzer -Path $ScriptPath -IncludeRule $rules
+            $messages = $results | ForEach-Object { "{0} Line {1}: {2}" -f $_.Severity, $_.Line, $_.Message }
+            ($messages -join [Environment]::NewLine) | Should -BeNullOrEmpty
         }
     }
 }

@@ -4,27 +4,27 @@ Describe 'Function SubGraph' -Tag Build {
 
         it "SubGraph alias should not throw an error" {
 
-            {SubGraph 0 {}} | Should Not Throw
+            {SubGraph 0 {}} | Should -Not -Throw
         }
 
         it "SubGraph attributes should not throw an error" {
 
-            {SubGraph 0 -Attributes @{label = 'test'} {}} | Should Not Throw
+            {SubGraph 0 -Attributes @{label = 'test'} {}} | Should -Not -Throw
         }
 
         it "SubGraph positional attributes should not throw an error" {
 
-            {SubGraph 0 @{label = 'test'} {}} | Should Not Throw
+            {SubGraph 0 @{label = 'test'} {}} | Should -Not -Throw
         }
 
         it "Builds basic graph" {
             $result = (SubGraph 0 {}) -join ''
 
-            $result | Should Not BeNullOrEmpty
-            $result | Should match 'cluster0'
-            $result | Should match '{'
-            $result | Should match '}'
-            $result | Should match 'subgraph'
+            $result | Should -Not -BeNullOrEmpty
+            $result | Should -Match 'cluster0'
+            $result | Should -Match '{'
+            $result | Should -Match '}'
+            $result | Should -Match 'subgraph'
         }
     }
 
@@ -42,7 +42,7 @@ Describe 'Function SubGraph' -Tag Build {
                         }
                     }
                 }
-            } | Should Not Throw
+            } | Should -Not -Throw
         }
 
         It "#55 Supports un-named subgraphs" {
@@ -57,7 +57,7 @@ Describe 'Function SubGraph' -Tag Build {
                         }
                     }
                 }
-            } | Should Not Throw
+            } | Should -Not -Throw
         }
 
         It "#53 Supports edges to subgraphs" {
@@ -69,10 +69,10 @@ Describe 'Function SubGraph' -Tag Build {
                 edge b -to source
             } | Out-String
 
-            $graph | Should match 'compound'
-            $graph | Should match 'invis'
-            $graph | Should match 'point'
-            $graph | Should match 'lhead="clustersource"'
+            $graph | Should -Match 'compound'
+            $graph | Should -Match 'invis'
+            $graph | Should -Match 'point'
+            $graph | Should -Match 'lhead="clustersource"'
 
             $graph = graph g {
                 subgraph source {
@@ -81,7 +81,7 @@ Describe 'Function SubGraph' -Tag Build {
                 edge source -to b
             } | Out-String
 
-            $graph | Should match 'ltail="clustersource"'
+            $graph | Should -Match 'ltail="clustersource"'
         }
     }
 }

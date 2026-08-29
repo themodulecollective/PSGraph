@@ -7,9 +7,11 @@ $moduleName = Split-Path $moduleRoot -Leaf
 # This one is not tagged with Build because it requires GraphViz
 Describe "$ModuleName Show-PSGraph" -Tag graphviz {
 
-    $dot = graph g {
-        node 2 @{shape = 'house'}
-        edge 2, 4, 8, 16
+    BeforeAll {
+        $dot = graph g {
+            node 2 @{shape = 'house'}
+            edge 2, 4, 8, 16
+        }
     }
 
     Context "Basic features" {
@@ -19,7 +21,7 @@ Describe "$ModuleName Show-PSGraph" -Tag graphviz {
             Set-Content -Path $path -Value $dot
             Show-PSGraph -SourcePath $path -OutputFormat png
 
-            "$path.png" | Should Exist
+            "$path.png" | Should -Exist
         }
 
         It "Converts file to image over pipe" {
@@ -27,7 +29,7 @@ Describe "$ModuleName Show-PSGraph" -Tag graphviz {
             Set-Content -Path $path -Value $dot
             $path | Show-PSGraph -OutputFormat png
 
-            "$path.png" | Should Exist
+            "$path.png" | Should -Exist
         }
     }
 }
