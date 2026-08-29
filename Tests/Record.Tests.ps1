@@ -80,7 +80,25 @@ Describe "Function Record" -Tag Build {
         $result | Should -match test
         $result | Should -match 'PORT="first"'        
         $result | Should -match 'PORT="Second"'
-        $result | Should -match '<B>first</B>'        
+        $result | Should -match '<B>first</B>'
         $result | Should -match '<B>Second</B>'
+    }
+
+    Context "#65 GUID-style row ports round-trip through Edge" {
+
+        It 'quotes a GUID row port when targeted by Edge' {
+            $rowId = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+
+            $dot = graph g {
+                Record Table1 {
+                    Row -Name $rowId -Label 'Row with a GUID id'
+                }
+                Node Table2
+                Edge "Table1:$rowId" -To Table2
+            }
+
+            ($dot -join "`n") | Should -Match "PORT=`"$rowId`""
+            ($dot -join "`n") | Should -Match "`"Table1`":`"$rowId`"->`"Table2`""
+        }
     }
 }

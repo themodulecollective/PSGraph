@@ -15,6 +15,11 @@ function Export-PSGraph
         Path or paths to the dot graphviz executable. Some sensible defaults are used if nothing is passed.
         .PARAMETER ShowGraph
         Launches the graph when done
+        .PARAMETER PassThru
+        Returns the rendered graph as text instead of writing it to a file. Useful for
+        piping SVG/DOT output into a notebook workflow (e.g. Jupyter/.NET Interactive).
+        Only supported when Source is inline DOT text (not a file path), and cannot be
+        combined with -DestinationPath or -ShowGraph.
         .Example
         Export-PSGraph -Source graph.dot -OutputFormat png
 
@@ -23,6 +28,11 @@ function Export-PSGraph
             edge (3..6)
             edge (5..2)
         } | Export-PSGraph -Destination $env:temp\test.png
+
+        .Example
+        graph g {
+            edge hello world
+        } | Export-PSGraph -OutputFormat svg -PassThru
 
         .Notes
         The source can either be files or piped graph data.
@@ -74,6 +84,7 @@ function Export-PSGraph
         [string[]]
         $GraphVizPath = (
             'C:\Program Files\NuGet\Packages\Graphviz*\dot.exe',
+            "$env:USERPROFILE\AppData\Local\PackageManagement\NuGet\Packages\Graphviz*\dot.exe", # Install-GraphViz -Scope CurrentUser location
             'C:\program files*\GraphViz*\bin\dot.exe',
             '/usr/local/bin/dot',
             '/usr/bin/dot'
@@ -81,13 +92,29 @@ function Export-PSGraph
 
         # launches the graph when done
         [switch]
-        $ShowGraph
+        $ShowGraph,
+
+        # returns the rendered graph as text instead of writing it to a file
+        [switch]
+        $PassThru
     )
 
     begin
     {
         try
         {
+            if ( $PassThru )
+            {
+                if ( $PSBoundParameters.ContainsKey('DestinationPath') -and -Not [string]::IsNullOrEmpty($DestinationPath) )
+                {
+                    throw '-PassThru cannot be combined with -DestinationPath; PassThru returns the rendered graph instead of writing a file.'
+                }
+                if ( $ShowGraph )
+                {
+                    throw '-PassThru cannot be combined with -ShowGraph; there is no destination file to show when the graph is returned as text.'
+                }
+            }
+
             $graphViz = $null
 
             # Unless the caller explicitly pinned a path, prefer a cross-platform
@@ -107,7 +134,7 @@ function Export-PSGraph
             if ( $null -eq $graphViz )
             {
                 $GraphvizPathString = $GraphVizPath -Join " or "
-                throw "Could not find GraphViz installed on this system. Please run 'Install-GraphViz' to install the needed binaries and libraries. This module looked for a 'dot' executable on PATH and in the following paths: $($GraphvizPathString). Optionally pass a path to your dot.exe file with the GraphVizPath parameter"
+                throw "Could not find GraphViz installed on this system. Please run 'Install-GraphViz' (or 'Install-GraphViz -Scope CurrentUser' if you don't have admin rights) to install the needed binaries and libraries. This module looked for a 'dot' executable on PATH and in the following paths: $($GraphvizPathString). Optionally pass a path to your dot.exe file with the GraphVizPath parameter"
             }
 
             $useStandardInput = $false
@@ -149,6 +176,11 @@ function Export-PSGraph
 
                 if ( $null -ne $fileList -and $Source.Count -gt 0 )
                 {
+                    if ( $PassThru )
+                    {
+                        throw '-PassThru is only supported when Source is inline DOT text, not a file path.'
+                    }
+
                     foreach ( $file in $fileList )
                     {
                         Write-Verbose "Generating graph from '$($file.path)'"
@@ -182,7 +214,7 @@ function Export-PSGraph
             if ( $useStandardInput )
             {
                 Write-Verbose 'Processing standard input'
-                if ( -Not $PSBoundParameters.ContainsKey( 'DestinationPath' ) )
+                if ( -Not $PSBoundParameters.ContainsKey( 'DestinationPath' ) -and -Not $PassThru )
                 {
                     Write-Verbose '  Creating temporary path to save graph'
 
@@ -200,10 +232,15 @@ function Export-PSGraph
                 $arguments = Get-GraphVizArgument $PSBoundParameters
                 Write-Verbose " Arguments: $($arguments -join ' ')"
 
-                $null = $standardInput.ToString() | & $graphViz @($arguments)
+                $result = $standardInput.ToString() | & $graphViz @($arguments)
                 if ($LastExitCode)
                 {
                     Write-Error -ErrorAction Stop -Exception ([System.Management.Automation.ParseException]::New())
+                }
+
+                if ( $PassThru )
+                {
+                    return $result
                 }
 
                 if ( $ShowGraph )

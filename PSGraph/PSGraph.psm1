@@ -61,4 +61,4 @@ foreach ($folder in $folders)
 Write-Verbose -Message 'Exporting Public functions...'
 $functions = Get-ChildItem -Path "$PSScriptRoot\Public" -Filter '*.ps1' -Recurse
 
-Export-ModuleMember -Function $functions.BaseName
+Export-ModuleMember -Function $functions.BaseName -Alias *

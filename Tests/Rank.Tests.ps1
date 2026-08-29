@@ -48,4 +48,28 @@ Describe 'Function Rank' -Tag Build {
         }
     }
 
+    Context "#101 RankType" {
+
+        It "Defaults to rank=same when -RankType is not specified" {
+            rank lhs rhs | Should -Match '{ rank=same;  "lhs"; "rhs"; }'
+        }
+
+        It "Emits the requested rank type '<RankType>'" -TestCases @(
+            @{ RankType = 'same' }
+            @{ RankType = 'min' }
+            @{ RankType = 'source' }
+            @{ RankType = 'max' }
+            @{ RankType = 'sink' }
+        ) {
+            param($RankType)
+
+            $result = rank lhs rhs -RankType $RankType
+            $result | Should -Match "\{ rank=$RankType;  `"lhs`"; `"rhs`"; \}"
+        }
+
+        It "Rejects an invalid -RankType value" {
+            { rank lhs rhs -RankType 'bogus' } | Should -Throw
+        }
+    }
+
 }

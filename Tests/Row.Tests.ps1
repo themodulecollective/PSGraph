@@ -31,4 +31,22 @@ Describe "Function Row" {
         Row Label -ID Test | Should -Match 'PORT="Test"'
         Row Label -Name Test | Should -Match 'PORT="Test"'
     }
+
+    Context "#64 Row attributes" {
+
+        It 'applies additional attributes to the row cell' {
+            Row Test -Attributes @{BORDER = 0 } | Should -Match 'BORDER="0"'
+        }
+
+        It 'still emits the standard PORT/ALIGN attributes alongside extra attributes' {
+            $result = Row Test -Attributes @{BGCOLOR = 'lightgrey' }
+            $result | Should -Match 'PORT="Test"'
+            $result | Should -Match 'ALIGN="LEFT"'
+            $result | Should -Match 'BGCOLOR="lightgrey"'
+        }
+
+        It 'does not add any extra attributes when none are specified' {
+            Row Test | Should -Be '<TR><TD PORT="Test" ALIGN="LEFT">Test</TD></TR>'
+        }
+    }
 }
