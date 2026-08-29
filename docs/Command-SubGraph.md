@@ -3,7 +3,7 @@
 This allows you to define a graph within the graph. This will group those objects together in some engines.
 
      graph {
-        subgraph -Attributes @{label='DMZ'} {
+        subgraph -Attributes @{label='DMZ'} -ScriptBlock {
             node web1,web2,reports
             edge report -To web1,web2
         }        

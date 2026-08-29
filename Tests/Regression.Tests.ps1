@@ -113,10 +113,46 @@ Describe "Regression tests for Github issues" -Tag Build {
     Context "Sequential edges require parameter name for attributes #40" {
 
         It "#40 correctly handles the positional attributes" {
-            $graph = Graph g {      
-                Edge a, b, c, d, a @{label = 'to'}            
+            $graph = Graph g {
+                Edge a, b, c, d, a @{label = 'to'}
             }
             $graph | Out-String | Should Not Match 'System.Collections.Hashtable'
+        }
+    }
+
+    Context "#98 Setting compound=false fails" {
+
+        It "#98 an explicit compound=`$false attribute is not overridden" {
+            $graph = Graph g -Attributes @{compound = $false} {} | Out-String
+            $graph | Should Match 'compound="False"'
+            $graph | Should Not Match 'compound="true"'
+        }
+
+        It "#98 compound still defaults to true when not specified" {
+            $graph = Graph g {} | Out-String
+            $graph | Should Match 'compound="true"'
+        }
+    }
+
+    Context "#66 SubGraph example from help/docs" {
+
+        It "#66 unnamed subgraph binds with -Attributes and -ScriptBlock passed by name" {
+            {
+                graph {
+                    subgraph -Attributes @{label = 'DMZ'} -ScriptBlock {
+                        node web1, web2
+                    }
+                }
+            } | Should Not Throw
+        }
+
+        It "#66 unnamed subgraph with named parameters applies the attributes" {
+            $graph = graph {
+                subgraph -Attributes @{label = 'DMZ'} -ScriptBlock {
+                    node web1
+                }
+            } | Out-String
+            $graph | Should Match 'label="DMZ"'
         }
     }
 }

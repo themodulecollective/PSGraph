@@ -91,7 +91,10 @@ function Graph
             if ($Type -eq 'digraph')
             {
                 $script:indent = 0
-                $Attributes.compound = 'true'
+                if (-not $Attributes.ContainsKey('compound'))
+                {
+                    $Attributes.compound = 'true'
+                }
                 $script:SubGraphList = @{}
             }
 

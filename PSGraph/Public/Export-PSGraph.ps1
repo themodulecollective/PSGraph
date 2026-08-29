@@ -30,7 +30,6 @@ function Export-PSGraph
         It checks the piped data for file paths. If it cannot find a file, it assumes it is graph data.
         This may give unexpected errors when the file does not exist.
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingInvokeExpression", "")]
     [cmdletbinding()]
     param(
         # The GraphViz file to process or contents of the graph in Dot notation
@@ -89,18 +88,34 @@ function Export-PSGraph
     {
         try
         {
-            # Use Resolve-Path to test all passed paths
-            # Select only items with 'dot' BaseName and use first one
-            $graphViz = Resolve-Path -path $GraphVizPath -ErrorAction SilentlyContinue | Get-Item | Where-Object BaseName -eq 'dot' | Select-Object -First 1
+            $graphViz = $null
+
+            # Unless the caller explicitly pinned a path, prefer a cross-platform
+            # PATH lookup (works regardless of install location/OS).
+            if ( -Not $PSBoundParameters.ContainsKey('GraphVizPath') )
+            {
+                $graphViz = Get-Command -Name 'dot' -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+            }
+
+            if ( $null -eq $graphViz )
+            {
+                # Use Resolve-Path to test all passed/default paths
+                # Select only items with 'dot' BaseName and use first one
+                $graphViz = Resolve-Path -path $GraphVizPath -ErrorAction SilentlyContinue | Get-Item | Where-Object BaseName -eq 'dot' | Select-Object -First 1
+            }
 
             if ( $null -eq $graphViz )
             {
                 $GraphvizPathString = $GraphVizPath -Join " or "
-                throw "Could not find GraphViz installed on this system. Please run 'Install-GraphViz' to install the needed binaries and libraries. This module just a wrapper around GraphViz and is looking for it in the following paths: $($GraphvizPathString). Optionally pass a path to your dot.exe file with the GraphVizPath parameter"
+                throw "Could not find GraphViz installed on this system. Please run 'Install-GraphViz' to install the needed binaries and libraries. This module looked for a 'dot' executable on PATH and in the following paths: $($GraphvizPathString). Optionally pass a path to your dot.exe file with the GraphVizPath parameter"
             }
 
             $useStandardInput = $false
             $standardInput = New-Object System.Text.StringBuilder
+
+            # Pipe DOT source to graphviz as UTF-8 without a BOM, regardless of the
+            # caller's ambient $OutputEncoding (a BOM here breaks dot's parser).
+            $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
         }
         catch
         {
@@ -195,7 +210,7 @@ function Export-PSGraph
                 {
                     # Launches image with default viewer as decided by explorer
                     Write-Verbose "Launching $($PSBoundParameters["DestinationPath"])"
-                    Invoke-Expression $PSBoundParameters["DestinationPath"]
+                    Invoke-Item -Path $PSBoundParameters["DestinationPath"]
                 }
 
                 Get-ChildItem $PSBoundParameters["DestinationPath"]
