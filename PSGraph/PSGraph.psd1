@@ -12,7 +12,7 @@
     RootModule        = 'PSGraph.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '2.1.38'
+    ModuleVersion     = '3.0.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -98,16 +98,35 @@
             Tags         = @('graph', 'visualization', 'DSL')
 
             # A URL to the license for this module.
-            LicenseUri   = 'https://github.com/KevinMarquette/PSGraph/blob/master/LICENSE'
+            LicenseUri   = 'https://github.com/themodulecollective/PSGraph/blob/master/LICENSE'
 
             # A URL to the main website for this project.
-            ProjectUri   = 'https://github.com/KevinMarquette/PSGraph'
+            ProjectUri   = 'https://github.com/themodulecollective/PSGraph'
 
             # A URL to an icon representing this module.
             # IconUri = ''
 
             # ReleaseNotes of this module
             ReleaseNotes = @'
+3.0.0 20260829
+BREAKING: PowerShell 7+ is now required; Windows PowerShell 5.1 is no
+longer supported. See CHANGELOG.md for the full list of fixes and
+features in this release.
+* Export-PSGraph: fixed -ShowGraph on paths with spaces, fixed BOM/
+  non-ASCII output breaking dot on some platforms, added cross-platform
+  `dot` auto-detection via Get-Command, added -PassThru for in-memory
+  (e.g. SVG) output
+* Graph: fixed compound=$false being silently overridden
+* Rank: added -RankType (min/source/max/sink, not just same)
+* Row: added -Attributes for row-level HTML attributes; fixed GUID-style
+  port name handling
+* Install-GraphViz: added -Scope CurrentUser for non-admin installs,
+  with a nuget.org fallback when Chocolatey can't be registered
+* New-NodeAttributeSet / New-EdgeAttributeSet: new commands for building
+  case-correct GraphViz attribute hashtables with tab completion
+* Tests migrated to Pester 5; CI migrated to GitHub Actions across
+  Windows/Linux/macOS
+
 2.1.16 20180217
 * add Record command
 * add Row command

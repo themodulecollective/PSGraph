@@ -1,5 +1,5 @@
 site_name: PSGraph Docs
-repo_url: https://github.com/KevinMarquette/PSGraph
+repo_url: https://github.com/themodulecollective/PSGraph
 theme: readthedocs
 pages:
   - Home: index.md
@@ -12,11 +12,16 @@ pages:
     - Node: Command-Node.md
     - Inline: Command-Inline.md
     - SubGraph: Command-SubGraph.md
+    - Rank: Command-Rank.md
     - Record: Command-Record.md
     - Row: Command-Row.md
     - Entity: Command-Entity.md
+    - New-NodeAttributeSet: Command-New-NodeAttributeSet.md
+    - New-EdgeAttributeSet: Command-New-EdgeAttributeSet.md
     - Export-PSGraph: Command-Export-PSGraph.md
     - Show-PSGraph: Command-Show-PSGraph.md
+    - Set-NodeFormatScript: Command-Set-NodeFormatScript.md
+    - Install-GraphViz: Command-Install-GraphViz.md
   - Advanced:
     - GraphViz Documentation: graphviz.md
   - Examples:
