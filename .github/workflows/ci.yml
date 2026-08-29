@@ -47,7 +47,8 @@ jobs:
         run: |
           Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
           Install-Module -Name Pester -RequiredVersion 5.7.1 -Scope CurrentUser -Force -SkipPublisherCheck -AllowClobber
-          Install-Module -Name PSScriptAnalyzer, DependsOn -Scope CurrentUser -Force -SkipPublisherCheck -AllowClobber
+          Install-Module -Name PSScriptAnalyzer -RequiredVersion 1.25.0 -Scope CurrentUser -Force -SkipPublisherCheck -AllowClobber
+          Install-Module -Name DependsOn -Scope CurrentUser -Force -SkipPublisherCheck -AllowClobber
 
       - name: Import module from source
         shell: pwsh
@@ -59,6 +60,7 @@ jobs:
         shell: pwsh
         run: |
           Import-Module Pester -RequiredVersion 5.7.1 -Force
+          Import-Module PSScriptAnalyzer -RequiredVersion 1.25.0 -Force
           Import-Module ./PSGraph/PSGraph.psd1 -Force
 
           $config = New-PesterConfiguration

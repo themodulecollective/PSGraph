@@ -23,12 +23,24 @@ function Format-Value
         if ($Edge -and
             # is not surounded by explicit quotes
             $value -notmatch '^".*"$' -and
-            # has record notation with a word as a target
-            $value -match '^(?<node>.+):(?<Record>(\w+))$'
+            # has record notation with a port/row target - allow hyphens so GUID-style
+            # row IDs (see issue #65) are recognized as a port, not part of the node name
+            $value -match '^(?<node>.+):(?<Record>[\w-]+)$'
         )
         {
+            # Capture both groups before any further regex ops below, since -notmatch
+            # re-populates (and would otherwise clobber) $matches
+            $recordNode = $matches.node
+            $recordPort = $matches.Record
+
+            if ($recordPort -notmatch '^[A-Za-z_]\w*$')
+            {
+                # Not a bare GraphViz identifier (e.g. a GUID, or starts with a digit) - quote it
+                $recordPort = '"{0}"' -f $recordPort
+            }
+
             # Recursive call to this function to format just the node
-            "{0}:{1}" -f (Format-Value $matches.node -Node), $matches.record
+            "{0}:{1}" -f (Format-Value $recordNode -Node), $recordPort
         }
         else
         {

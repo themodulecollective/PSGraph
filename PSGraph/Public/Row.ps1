@@ -18,6 +18,10 @@ function Row
     This will encode unintentional HTML. Characters like <>& would break html parsing if they are
     contained in the source data.
 
+    .PARAMETER Attributes
+    Additional HTML attributes applied to this row's cell, e.g. @{BORDER = 0} to hide the row's
+    border line, or @{BGCOLOR = 'lightgrey'} to shade it.
+
     .EXAMPLE
     graph {
 
@@ -64,7 +68,11 @@ function Row
         $Name,
 
         [switch]
-        $HtmlEncode
+        $HtmlEncode,
+
+        # Additional HTML attributes for this row's cell, e.g. @{BORDER = 0} to hide the row's border
+        [hashtable]
+        $Attributes = @{}
     )
     process
     {
@@ -90,7 +98,10 @@ function Row
             {
                 $Label = ([System.Net.WebUtility]::HtmlEncode($Label))
             }
-            '<TR><TD PORT="{0}" ALIGN="LEFT">{1}</TD></TR>' -f $Name, $Label
+
+            $extraAttributes = ($Attributes.GetEnumerator() | ForEach-Object { ' {0}="{1}"' -f $_.Key.ToString().ToUpper(), $_.Value }) -join ''
+
+            '<TR><TD PORT="{0}" ALIGN="LEFT"{1}>{2}</TD></TR>' -f $Name, $extraAttributes, $Label
         }
     }
 }

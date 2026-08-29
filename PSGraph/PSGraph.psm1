@@ -61,4 +61,5 @@ foreach ($folder in $folders)
 Write-Verbose -Message 'Exporting Public functions...'
 $functions = Get-ChildItem -Path "$PSScriptRoot\Public" -Filter '*.ps1' -Recurse
 
-Export-ModuleMember -Function $functions.BaseName
+# Keep in sync with PSGraph.psd1's AliasesToExport
+Export-ModuleMember -Function $functions.BaseName -Alias 'DiGraph', 'NodeAttributes', 'EdgeAttributes'

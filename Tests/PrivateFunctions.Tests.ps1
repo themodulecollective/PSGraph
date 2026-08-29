@@ -88,6 +88,14 @@ InModuleScope -ModuleName PSGraph {
             It "Does not throw an error" {
                 {Update-DefaultArgument @{}} | Should -Not -Throw
             }
+
+            It "Sets AutoName when DestinationPath is absent" {
+                (Update-DefaultArgument @{}).AutoName | Should -Be $true
+            }
+
+            It "Does not set AutoName when PassThru is present, even without DestinationPath" {
+                (Update-DefaultArgument @{PassThru = $true}).ContainsKey('AutoName') | Should -Be $false
+            }
         }
 
         Context "Format-Value" {
@@ -125,6 +133,14 @@ InModuleScope -ModuleName PSGraph {
                 Format-Value 'test:value' -node | Should -Be '"test:value"'
                 Format-Value 'test:value' -edge | Should -Be '"test":value'
                 Format-Value 'test value2:value' -edge | Should -Be '"test value2":value'
+            }
+
+            It "#65 quotes GUID-style record ports instead of dropping them" {
+                Format-Value 'test:3fa85f64-5717-4562-b3fc-2c963f66afa6' -edge | Should -Be '"test":"3fa85f64-5717-4562-b3fc-2c963f66afa6"'
+            }
+
+            It "#65 quotes a record port that starts with a digit" {
+                Format-Value 'test:1abc' -edge | Should -Be '"test":"1abc"'
             }
 
             It "Uses custom format script correctly" {

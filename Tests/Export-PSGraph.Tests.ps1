@@ -96,4 +96,49 @@ Describe "$ModuleName Export-PSGraph" -Tag graphviz {
             { Export-PSGraph -Source $dot -DestinationPath (Join-Path $testdrive "badpath.png") -GraphVizPath 'C:\does\not\exist\dot.exe' -ErrorAction Stop } | Should -Throw
         }
     }
+
+    Context "PR #105 -PassThru stdout/SVG export" {
+
+        It "Returns the rendered graph as text instead of writing a file" {
+            $tempCountBefore = (Get-ChildItem ([System.IO.Path]::GetTempPath()) -Filter '*.svg' -ErrorAction SilentlyContinue).Count
+
+            $result = $dot | Export-PSGraph -OutputFormat svg -PassThru
+
+            $result | Should -Not -BeNullOrEmpty
+            ($result -join "`n") | Should -Match '<svg'
+
+            $tempCountAfter = (Get-ChildItem ([System.IO.Path]::GetTempPath()) -Filter '*.svg' -ErrorAction SilentlyContinue).Count
+            $tempCountAfter | Should -Be $tempCountBefore
+        }
+
+        It "Throws when combined with -DestinationPath" {
+            $path = Join-Path $testdrive "passthru-destination.svg"
+            { $dot | Export-PSGraph -OutputFormat svg -PassThru -DestinationPath $path -ErrorAction Stop } | Should -Throw
+        }
+
+        It "Throws when combined with -ShowGraph" {
+            { $dot | Export-PSGraph -OutputFormat svg -PassThru -ShowGraph -ErrorAction Stop } | Should -Throw
+        }
+
+        It "Throws when Source is a file path rather than inline DOT text" {
+            $path = Join-Path $testdrive "passthru-source.dot"
+            Set-Content -Path $path -Value $dot
+            { Export-PSGraph -SourcePath $path -OutputFormat svg -PassThru -ErrorAction Stop } | Should -Throw
+        }
+    }
+
+    Context "PR #112 non-admin Install-GraphViz install locations" {
+
+        It "Includes the Install-GraphViz -Scope CurrentUser NuGet package location in the default search paths" {
+            $ast = (Get-Command Export-PSGraph).ScriptBlock.Ast
+            $paramAst = $ast.Find({ $args[0] -is [System.Management.Automation.Language.ParameterAst] -and $args[0].Name.VariablePath.UserPath -eq 'GraphVizPath' }, $true)
+
+            $paramAst.DefaultValue.Extent.Text | Should -Match 'PackageManagement\\NuGet\\Packages\\Graphviz'
+        }
+
+        It "Mentions -Scope CurrentUser in the not-found error message" {
+            { Export-PSGraph -Source $dot -DestinationPath (Join-Path $testdrive "notfound.png") -GraphVizPath 'C:\does\not\exist\dot.exe' -ErrorAction Stop } |
+                Should -Throw -ExpectedMessage '*-Scope CurrentUser*'
+        }
+    }
 }

@@ -10,7 +10,9 @@ function Update-DefaultArgument
         $InputObject['LayoutEngine'] = Get-LayoutEngine -Name $InputObject['LayoutEngine']
     }
 
-    if ( -Not $InputObject.ContainsKey( 'DestinationPath' ) )
+    # PassThru intentionally omits DestinationPath so graphviz writes to stdout;
+    # don't let AutoName's '-O' flag force it to an auto-named file instead.
+    if ( -Not $InputObject.ContainsKey( 'DestinationPath' ) -and -Not $InputObject.ContainsKey( 'PassThru' ) )
     {
         $InputObject["AutoName"] = $true;
     }

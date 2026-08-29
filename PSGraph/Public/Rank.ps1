@@ -21,6 +21,12 @@ function Rank
             edge $odd -to $even
         }
 
+        .Example
+        graph g {
+            rank 1,2,3 -RankType min
+            edge (1..3)
+        }
+
         .Notes
         Accepts an array of items or a list of strings.
     #>
@@ -48,7 +54,12 @@ function Rank
         # Script to run on each node
         [alias('Script')]
         [scriptblock]
-        $NodeScript = {$_}
+        $NodeScript = {$_},
+
+        # GraphViz rank type used to constrain the relative layout of this node set
+        [ValidateSet('same', 'min', 'source', 'max', 'sink')]
+        [string]
+        $RankType = 'same'
     )
 
     begin
@@ -97,6 +108,6 @@ function Rank
 
     end
     {
-        '{0}{{ rank=same;  {1}; }}' -f (Get-Indent), ($values -join '; ')
+        '{0}{{ rank={1};  {2}; }}' -f (Get-Indent), $RankType, ($values -join '; ')
     }
 }
