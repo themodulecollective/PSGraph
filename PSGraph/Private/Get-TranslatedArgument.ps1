@@ -1,5 +1,24 @@
-function Get-TranslatedArgument( $InputObject )
+function Get-TranslatedArgument
 {
+    <#
+        .Description
+        Converts a hashtable of PSGraph parameter names/values (already defaulted
+        by Update-DefaultArgument) into GraphViz command-line arguments, using the
+        mapping from Get-ArgumentLookUpTable.
+
+        .Example
+        Get-TranslatedArgument -InputObject @{ OutputFormat = 'png' }
+
+        -Tpng
+    #>
+    [OutputType([string])]
+    [CmdletBinding()]
+    param(
+        # Parameter name/value pairs to translate into GraphViz command-line arguments
+        [hashtable]
+        $InputObject
+    )
+
     $paramLookup = Get-ArgumentLookUpTable
 
     Write-Verbose 'Walking parameter mapping'

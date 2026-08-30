@@ -8,26 +8,6 @@ function Record
     .DESCRIPTION
     Creates a record object that contains rows of data.
 
-    .PARAMETER Name
-    The node name for this record
-
-    .PARAMETER Label
-    The label to use for the headder of the record.
-
-    .PARAMETER Row
-    An array of strings/objects to place in this record
-
-    .PARAMETER RowScript
-    A script to run on each row
-
-    .PARAMETER ScriptBlock
-    A sub expression that contains Row commands
-
-    .PARAMETER TableAttributes
-    HTML attributes applied to the record's outer <TABLE> element, e.g.
-    @{ CELLBORDER = 0 } to hide the borders between every row in one call.
-    Defaults to today's fixed CELLBORDER=1/BORDER=0/CELLSPACING=0 look.
-
     .EXAMPLE
     graph {
 
@@ -59,14 +39,17 @@ function Record
     [OutputType('System.String')]
     [cmdletbinding(DefaultParameterSetName = 'Script')]
     param(
+        # The node name for this record
         [Parameter(
             Mandatory,
-            Position = 0
+            Position = 0,
+            HelpMessage = "The node name for this record."
         )]
         [alias('ID', 'Node')]
         [string]
         $Name,
 
+        # An array of strings/objects to place in this record
         [Parameter(
             Position = 1,
             ValueFromPipeline,
@@ -76,6 +59,7 @@ function Record
         [Object[]]
         $Row,
 
+        # A sub expression that contains Row commands
         [Parameter(
             Position = 1,
             ParameterSetName = 'Script'
@@ -83,19 +67,22 @@ function Record
         [ScriptBlock]
         $ScriptBlock,
 
+        # A script to run on each row
         [Parameter(
             Position = 2
         )]
         [ScriptBlock]
         $RowScript,
 
+        # The label to use for the header of the record
         [string]
         $Label,
 
         # HTML attributes for the outer <TABLE> element, e.g. @{ CELLBORDER = 0 } to hide
-        # borders between every row in one call (#81)
+        # borders between every row in one call (#81). Defaults to today's fixed
+        # CELLBORDER=1/BORDER=0/CELLSPACING=0 look.
         [hashtable]
-        $TableAttributes = @{ CELLBORDER = 1; BORDER = 0; CELLSPACING = 0 }
+        $TableAttributes = [ordered]@{ CELLBORDER = 1; BORDER = 0; CELLSPACING = 0 }
     )
     begin
     {
@@ -132,9 +119,21 @@ function Record
     }
     end
     {
-        $tableAttributeString = ($TableAttributes.GetEnumerator() | ForEach-Object { ' {0}="{1}"' -f $_.Key.ToString().ToUpper(), $_.Value }) -join ''
-        $html = '<TABLE{0}><TR><TD bgcolor="black" align="center"><font color="white"><B>{1}</B></font></TD></TR>{2}</TABLE>' -f $tableAttributeString, $Label, ($tableData -join '')
-        Node $Name @{label = $html; shape = 'none'; fontname = "Courier New"; style = "filled"; penwidth = 1; fillcolor = "white"}
+        $tableAttributeCells = $TableAttributes.GetEnumerator() |
+            ForEach-Object { ' {0}="{1}"' -f $_.Key.ToString().ToUpper(), $_.Value }
+        $tableAttributeString = $tableAttributeCells -join ''
+        $htmlFormat = '<TABLE{0}><TR><TD bgcolor="black" align="center">' +
+            '<font color="white"><B>{1}</B></font></TD></TR>{2}</TABLE>'
+        $html = $htmlFormat -f $tableAttributeString, $Label, ($tableData -join '')
+        $nodeAttributes = @{
+            label     = $html
+            shape     = 'none'
+            fontname  = "Courier New"
+            style     = "filled"
+            penwidth  = 1
+            fillcolor = "white"
+        }
+        Node $Name $nodeAttributes
     }
 }
 

@@ -1,6 +1,8 @@
 function Node
 {
     <#
+        .SYNOPSIS
+        Defines a node, optionally with attributes or a placement in the flow.
         .Description
         Used to specify a nodes attributes or placement within the flow.
 
@@ -27,7 +29,6 @@ function Node
         I had conflits trying to alias Get-Node to node, so I droped the verb from the name.
         If you have subgraphs, it works best to define the node inside the subgraph before giving it an edge
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidDefaultValueForMandatoryParameter", "")]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidOverwritingBuiltInCmdlets", "")]
     [cmdletbinding()]
     param(
@@ -35,10 +36,11 @@ function Node
         [Parameter(
             Mandatory = $true,
             ValueFromPipeline = $true,
-            Position = 0
+            Position = 0,
+            HelpMessage = 'The name of the node, or a hashtable of default node attributes.'
         )]
         [object[]]
-        $Name = 'node',
+        $Name,
 
         # Script to run on each node
         [Parameter()]
@@ -73,13 +75,14 @@ function Node
                 !$PSBoundParameters.ContainsKey( 'NodeScript' )
             )
             {
-                # detected attept to set default values in this form 'node @{key=value}', the hashtable ends up in $name[0]
+                # detected attept to set default values in this form 'node @{key=value}', the
+                # hashtable ends up in $name[0]
                 $GraphVizAttribute = ConvertTo-GraphVizAttribute -Attributes $Name[0]
                 '{0}node {1}' -f (Get-Indent), $GraphVizAttribute
             }
             else
             {
-                $nodeList = @()
+                $nodeList = [System.Collections.Generic.List[object]]::new()
                 foreach ( $node in $Name )
                 {
                     if ( $NodeScript )
@@ -95,7 +98,7 @@ function Node
                     $GraphVizAttribute = ConvertTo-GraphVizAttribute -Attributes $Attributes -InputObject $node
                     '{0}{1} {2}' -f (Get-Indent), (Format-Value $nodeName -Node), $GraphVizAttribute
 
-                    $nodeList += $nodeName
+                    $nodeList.Add($nodeName)
                 }
 
                 if ($Ranked -and $null -ne $nodeList -and $nodeList.count -gt 1)

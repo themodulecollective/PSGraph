@@ -1,6 +1,8 @@
 function Inline
 {
     <#
+        .SYNOPSIS
+        Writes native DOT format commands inline, with proper indentation.
         .Description
         Allows you to write native DOT format commands inline with proper indention
 
@@ -9,7 +11,8 @@ function Inline
             inline 'node [shape="rect";]'
         }
         .Notes
-        You can just place a string in the graph, but it will not indent correctly. So all this does is give you correct indents.
+        You can just place a string in the graph, but it will not indent correctly. So all this
+        does is give you correct indents.
     #>
     [cmdletbinding()]
     param(

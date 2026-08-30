@@ -62,8 +62,12 @@ task SetVersion {
         "Downloading published module to check for breaking changes"
         $publishedModule | Save-Module -Path $downloadFolder
 
-        [System.Collections.Generic.HashSet[string]] $publishedInterface = @(GetModulePublicInterfaceMap -Path (Join-Path $downloadFolder $ModuleName))
-        [System.Collections.Generic.HashSet[string]] $buildInterface = @(GetModulePublicInterfaceMap -Path $ManifestPath)
+        [System.Collections.Generic.HashSet[string]] $publishedInterface = @(
+            GetModulePublicInterfaceMap -Path (Join-Path $downloadFolder $ModuleName)
+        )
+        [System.Collections.Generic.HashSet[string]] $buildInterface = @(
+            GetModulePublicInterfaceMap -Path $ManifestPath
+        )
 
         if (-not $publishedInterface.IsSubsetOf($buildInterface))
         {

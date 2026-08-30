@@ -1,8 +1,25 @@
 function Update-DefaultArgument
 {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute( "PSUseShouldProcessForStateChangingFunctions", "" )]
+    <#
+        .Description
+        Fills in default GraphViz arguments (layout engine, auto-name, output
+        format) on a copy of the caller's parameter hashtable before it's
+        translated into command-line arguments by Get-TranslatedArgument.
+
+        .Example
+        Update-DefaultArgument -InputObject @{ DestinationPath = 'graph.svg' }
+    #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        "PSUseShouldProcessForStateChangingFunctions", "",
+        Justification = "Despite the Update- verb, this only mutates the caller's local hashtable
+argument to fill in defaults and returns it - it doesn't change any external/persistent state, so
+ShouldProcess doesn't apply."
+    )]
     [cmdletbinding()]
-    param ( $inputObject )
+    param (
+        # Parameter hashtable to fill in defaults on
+        $inputObject
+    )
 
     if ( $InputObject.ContainsKey( 'LayoutEngine' ) )
     {

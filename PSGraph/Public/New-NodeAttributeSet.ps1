@@ -11,7 +11,13 @@ function New-NodeAttributeSet
         shape/color/font values - and normalizes casing for the ones GraphViz requires lowercase.
 
         .EXAMPLE
-        $attrs = New-NodeAttributeSet -Shape box -Color Blue -FontName 'Calibri' -Label 'test'
+        $nodeAttributeSetSplat = @{
+            Shape    = 'box'
+            Color    = 'Blue'
+            FontName = 'Calibri'
+            Label    = 'test'
+        }
+        $attrs = New-NodeAttributeSet @nodeAttributeSetSplat
         node MyNode $attrs
 
         .NOTES
@@ -19,7 +25,11 @@ function New-NodeAttributeSet
         attribute value including numeric/boolean ones, which throws - this version only
         lowercases the string-valued attributes GraphViz actually requires lowercase.
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        "PSUseShouldProcessForStateChangingFunctions", "",
+        Justification = "Despite the New- verb, this builds and returns a hashtable in memory - it
+doesn't change any external/persistent state, so ShouldProcess doesn't apply."
+    )]
     [CmdletBinding()]
     [Alias('NodeAttributes')]
     [OutputType([hashtable])]
@@ -74,13 +84,18 @@ function New-NodeAttributeSet
         $Regular,
 
         # A string specifying the shape of a node
-        [ValidateSet('box', 'polygon', 'ellipse', 'oval', 'circle', 'point', 'egg', 'triangle', 'plaintext', 'plain', 'diamond',
-            'trapezium', 'parallelogram', 'house', 'pentagon', 'hexagon', 'septagon', 'octagon', 'doublecircle',
-            'doubleoctagon', 'tripleoctagon', 'invtriangle', 'invtrapezium', 'invhouse', 'Mdiamond', 'Msquare',
-            'Mcircle', 'rect', 'rectangle', 'square', 'star', 'none', 'underline', 'cylinder', 'note', 'tab',
-            'folder', 'box3d', 'component', 'promoter', 'cds', 'terminator', 'utr', 'primersite', 'restrictionsite',
-            'fivepoverhang', 'threepoverhang', 'noverhang', 'assembly', 'signature', 'insulator', 'ribosite',
-            'rnastab', 'proteasesite', 'proteinstab', 'rpromoter', 'rarrow', 'larrow', 'lpromoter')]
+        [ValidateSet(
+            'box', 'polygon', 'ellipse', 'oval', 'circle', 'point',
+            'egg', 'triangle', 'plaintext', 'plain', 'diamond', 'trapezium',
+            'parallelogram', 'house', 'pentagon', 'hexagon', 'septagon', 'octagon',
+            'doublecircle', 'doubleoctagon', 'tripleoctagon', 'invtriangle', 'invtrapezium', 'invhouse',
+            'Mdiamond', 'Msquare', 'Mcircle', 'rect', 'rectangle', 'square',
+            'star', 'none', 'underline', 'cylinder', 'note', 'tab',
+            'folder', 'box3d', 'component', 'promoter', 'cds', 'terminator',
+            'utr', 'primersite', 'restrictionsite', 'fivepoverhang', 'threepoverhang', 'noverhang',
+            'assembly', 'signature', 'insulator', 'ribosite', 'rnastab', 'proteasesite',
+            'proteinstab', 'rpromoter', 'rarrow', 'larrow', 'lpromoter'
+        )]
         [string]
         $Shape,
 
@@ -93,7 +108,9 @@ function New-NodeAttributeSet
         $Skew,
 
         # Style for the node, e.g. filled, dashed, rounded
-        [ValidateSet('dashed', 'dotted', 'solid', 'invis', 'bold', 'filled', 'striped', 'wedged', 'diagonals', 'rounded')]
+        [ValidateSet(
+            'dashed', 'dotted', 'solid', 'invis', 'bold', 'filled', 'striped', 'wedged', 'diagonals', 'rounded'
+        )]
         [string]
         $Style,
 
@@ -105,7 +122,8 @@ function New-NodeAttributeSet
     $values = @{}
 
     # GraphViz requires these lowercase; user input may not be
-    foreach ($param in @('Color', 'FillColor', 'FixedSize', 'FontColor', 'Shape', 'Style'))
+    $lowercaseParams = @('Color', 'FillColor', 'FixedSize', 'FontColor', 'Shape', 'Style')
+    foreach ($param in $lowercaseParams)
     {
         if ($PSBoundParameters.ContainsKey($param))
         {
@@ -114,7 +132,10 @@ function New-NodeAttributeSet
     }
 
     # Passed through unchanged - numeric, or free-form text where case is meaningful
-    foreach ($param in @('Distortion', 'FontName', 'FontSize', 'Height', 'Image', 'Label', 'PenWidth', 'Sides', 'Skew', 'Width'))
+    $passthroughParams = @(
+        'Distortion', 'FontName', 'FontSize', 'Height', 'Image', 'Label', 'PenWidth', 'Sides', 'Skew', 'Width'
+    )
+    foreach ($param in $passthroughParams)
     {
         if ($PSBoundParameters.ContainsKey($param))
         {
@@ -142,7 +163,10 @@ function Get-PSGraphColorCompletion
             Where-Object { $_.IsStatic -and -not $_.IsSpecialName -and $_.Name -like "$wordToComplete*" } |
             Sort-Object Name |
             ForEach-Object {
-                [System.Management.Automation.CompletionResult]::new($_.Name.ToLower(), $_.Name.ToLower(), 'ParameterValue', $_.Name.ToLower())
+                $colorName = $_.Name.ToLower()
+                [System.Management.Automation.CompletionResult]::new(
+                    $colorName, $colorName, 'ParameterValue', $colorName
+                )
             }
     }
     catch
@@ -160,7 +184,7 @@ function Get-PSGraphFontCompletion
     {
         try
         {
-            $script:PSGraphFontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families.Name
+            $script:PSGraphFontFamilies = ([System.Drawing.Text.InstalledFontCollection]::new()).Families.Name
         }
         catch
         {
@@ -183,22 +207,42 @@ function Get-PSGraphArrowCompletion
     $prefix = if ($modifierPrefixMatch.Success) { $modifierPrefixMatch.Value } else { '' }
 
     $baseArrows | Where-Object { "$prefix$_" -like "$wordToComplete*" } | ForEach-Object {
-        [System.Management.Automation.CompletionResult]::new("$prefix$_", "$prefix$_", 'ParameterValue', "$prefix$_")
+        $arrowName = "$prefix$_"
+        [System.Management.Automation.CompletionResult]::new($arrowName, $arrowName, 'ParameterValue', $arrowName)
     }
 }
 
 if (Get-Command -Name Register-ArgumentCompleter -ErrorAction SilentlyContinue)
 {
-    Register-ArgumentCompleter -CommandName New-NodeAttributeSet -ParameterName Color -ScriptBlock ${function:Get-PSGraphColorCompletion}
-    Register-ArgumentCompleter -CommandName New-NodeAttributeSet -ParameterName FillColor -ScriptBlock ${function:Get-PSGraphColorCompletion}
-    Register-ArgumentCompleter -CommandName New-NodeAttributeSet -ParameterName FontColor -ScriptBlock ${function:Get-PSGraphColorCompletion}
-    Register-ArgumentCompleter -CommandName New-NodeAttributeSet -ParameterName FontName -ScriptBlock ${function:Get-PSGraphFontCompletion}
+    $colorCompletionTargets = @(
+        @{ CommandName = 'New-NodeAttributeSet'; ParameterName = 'Color' }
+        @{ CommandName = 'New-NodeAttributeSet'; ParameterName = 'FillColor' }
+        @{ CommandName = 'New-NodeAttributeSet'; ParameterName = 'FontColor' }
+        @{ CommandName = 'New-EdgeAttributeSet'; ParameterName = 'Color' }
+        @{ CommandName = 'New-EdgeAttributeSet'; ParameterName = 'FontColor' }
+        @{ CommandName = 'New-EdgeAttributeSet'; ParameterName = 'LabelFontColor' }
+    )
+    foreach ($target in $colorCompletionTargets)
+    {
+        Register-ArgumentCompleter @target -ScriptBlock ${function:Get-PSGraphColorCompletion}
+    }
 
-    Register-ArgumentCompleter -CommandName New-EdgeAttributeSet -ParameterName ArrowHead -ScriptBlock ${function:Get-PSGraphArrowCompletion}
-    Register-ArgumentCompleter -CommandName New-EdgeAttributeSet -ParameterName ArrowTail -ScriptBlock ${function:Get-PSGraphArrowCompletion}
-    Register-ArgumentCompleter -CommandName New-EdgeAttributeSet -ParameterName Color -ScriptBlock ${function:Get-PSGraphColorCompletion}
-    Register-ArgumentCompleter -CommandName New-EdgeAttributeSet -ParameterName FontColor -ScriptBlock ${function:Get-PSGraphColorCompletion}
-    Register-ArgumentCompleter -CommandName New-EdgeAttributeSet -ParameterName LabelFontColor -ScriptBlock ${function:Get-PSGraphColorCompletion}
-    Register-ArgumentCompleter -CommandName New-EdgeAttributeSet -ParameterName FontName -ScriptBlock ${function:Get-PSGraphFontCompletion}
-    Register-ArgumentCompleter -CommandName New-EdgeAttributeSet -ParameterName LabelFontName -ScriptBlock ${function:Get-PSGraphFontCompletion}
+    $fontCompletionTargets = @(
+        @{ CommandName = 'New-NodeAttributeSet'; ParameterName = 'FontName' }
+        @{ CommandName = 'New-EdgeAttributeSet'; ParameterName = 'FontName' }
+        @{ CommandName = 'New-EdgeAttributeSet'; ParameterName = 'LabelFontName' }
+    )
+    foreach ($target in $fontCompletionTargets)
+    {
+        Register-ArgumentCompleter @target -ScriptBlock ${function:Get-PSGraphFontCompletion}
+    }
+
+    $arrowCompletionTargets = @(
+        @{ CommandName = 'New-EdgeAttributeSet'; ParameterName = 'ArrowHead' }
+        @{ CommandName = 'New-EdgeAttributeSet'; ParameterName = 'ArrowTail' }
+    )
+    foreach ($target in $arrowCompletionTargets)
+    {
+        Register-ArgumentCompleter @target -ScriptBlock ${function:Get-PSGraphArrowCompletion}
+    }
 }

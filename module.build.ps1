@@ -1,6 +1,7 @@
-$Script:ModuleName = Get-ChildItem .\*\*.psm1 | Select-object -ExpandProperty BaseName
+$Script:ModuleName = Get-ChildItem -Path (Join-Path $PSScriptRoot '*\*.psm1') |
+    Select-Object -ExpandProperty BaseName
 $Script:CodeCoveragePercent = 0.0 # 0 to 1
-. $psscriptroot\BuildTasks\InvokeBuildInit.ps1
+. $PSScriptRoot\BuildTasks\InvokeBuildInit.ps1
 
 task Default Build, Test, UpdateSource
 task Build Copy, Compile, BuildModule, BuildManifest, SetVersion

@@ -10,28 +10,6 @@ function Cells
     emitted rows can be passed straight into Record's -Row/-Rows pipeline, since Row
     already passes fully formed <TR>...</TR> strings through unmodified.
 
-    .PARAMETER InputObject
-    The object(s) to render as table rows.
-
-    .PARAMETER Properties
-    Wildcard-filtered list of property names to include, in order. Defaults to all properties.
-
-    .PARAMETER ExcludeProperty
-    Wildcard-filtered list of property names to exclude.
-
-    .PARAMETER Align
-    Text alignment applied to every <TD>. Defaults to LEFT.
-
-    .PARAMETER PortProperty
-    Name of the property whose column should also carry a PORT attribute, so it can be
-    targeted by Edge.
-
-    .PARAMETER HtmlEncode
-    HTML-encode each cell's value.
-
-    .PARAMETER NoHeader
-    Skip emitting the header row built from property names.
-
     .EXAMPLE
     Get-Process | Select-Object -First 3 Name, Id | Cells -PortProperty Id | Record Processes
 
@@ -44,26 +22,34 @@ function Cells
     [OutputType('System.String')]
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory, ValueFromPipeline)]
+        # The object(s) to render as table rows.
+        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "The object(s) to render as table rows.")]
         [object]
         $InputObject,
 
+        # Wildcard-filtered list of property names to include, in order. Defaults to all properties.
         [string[]]
         $Properties = '*',
 
+        # Wildcard-filtered list of property names to exclude.
         [string[]]
         $ExcludeProperty,
 
+        # Text alignment applied to every <TD>. Defaults to LEFT.
         [ValidateSet('LEFT', 'CENTER', 'RIGHT')]
         [string]
         $Align = 'LEFT',
 
+        # Name of the property whose column should also carry a PORT attribute, so it can be
+        # targeted by Edge.
         [string]
         $PortProperty,
 
+        # HTML-encode each cell's value.
         [switch]
         $HtmlEncode,
 
+        # Skip emitting the header row built from property names.
         [switch]
         $NoHeader
     )
@@ -87,7 +73,8 @@ function Cells
 
             if ( -not $NoHeader )
             {
-                $headerCells = ($columns | ForEach-Object { '<TD ALIGN="{0}"><B>{1}</B></TD>' -f $Align, $_ }) -join ''
+                $headerCells = ($columns |
+                    ForEach-Object { '<TD ALIGN="{0}"><B>{1}</B></TD>' -f $Align, $_ }) -join ''
                 '<TR>{0}</TR>' -f $headerCells
             }
         }

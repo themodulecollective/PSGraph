@@ -21,12 +21,9 @@
     ExcludeRules = @('PSUseToExportFieldsInManifest','PSMissingModuleManifestField')
 
     # You can use the following entry to supply parameters to rules that take parameters.
-    # For instance, the PSAvoidUsingCmdletAliases rule takes a whitelist for aliases you
-    # want to allow.
+    # No aliases (including 'Where'/'Select') are whitelisted - the house style requires
+    # full command names everywhere.
     Rules = @{
-    #    Do not flag 'cd' alias.
-        PSAvoidUsingCmdletAliases = @{Whitelist = @('Where','Select')}
-
     #    Check if your script uses cmdlets that are compatible on PowerShell Core,
     #    version 6.0.0-alpha, on Linux.
     #    PSUseCompatibleCmdlets = @{Compatibility = @("core-6.0.0-alpha-linux")}

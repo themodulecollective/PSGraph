@@ -23,7 +23,15 @@ $Script:ModuleInstallScope = 'CurrentUser'
 
 Get-PackageProvider -Name 'NuGet' -ForceBootstrap | Out-Null
 
-Install-Module -Name 'Pester' -RequiredVersion $Script:PesterVersion -Scope $Script:ModuleInstallScope -Force -SkipPublisherCheck -AllowClobber
+$installPesterSplat = @{
+    Name               = 'Pester'
+    RequiredVersion    = $Script:PesterVersion
+    Scope              = $Script:ModuleInstallScope
+    Force              = $true
+    SkipPublisherCheck = $true
+    AllowClobber       = $true
+}
+Install-Module @installPesterSplat
 Install-Module -Name $Script:Modules -Scope $Script:ModuleInstallScope -Force -SkipPublisherCheck -AllowClobber
 
 Import-Module -Name 'Pester' -RequiredVersion $Script:PesterVersion -Force

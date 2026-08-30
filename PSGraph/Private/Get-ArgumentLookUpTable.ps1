@@ -1,6 +1,18 @@
 Function Get-ArgumentLookupTable
 {
-    return @{
+    <#
+        .Description
+        Returns the static mapping from PSGraph parameter names to GraphViz
+        command-line argument templates, used by Get-TranslatedArgument.
+
+        .Example
+        Get-ArgumentLookupTable
+    #>
+    [OutputType([hashtable])]
+    [CmdletBinding()]
+    param()
+
+    @{
         # OutputFormat
         Version         = 'V'
         Debug           = 'v'

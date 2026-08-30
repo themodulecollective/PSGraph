@@ -1,6 +1,8 @@
 function Export-PSGraph
 {
     <#
+        .SYNOPSIS
+        Invokes the GraphViz binaries to render a graph to a file or as text.
         .Description
         Invokes the graphviz binaries to generate a graph.
         .PARAMETER Source
@@ -97,7 +99,8 @@ function Export-PSGraph
         [string[]]
         $GraphVizPath = (
             'C:\Program Files\NuGet\Packages\Graphviz*\dot.exe',
-            "$env:USERPROFILE\AppData\Local\PackageManagement\NuGet\Packages\Graphviz*\dot.exe", # Install-GraphViz -Scope CurrentUser location
+            # Install-GraphViz -Scope CurrentUser location
+            "$env:USERPROFILE\AppData\Local\PackageManagement\NuGet\Packages\Graphviz*\dot.exe",
             'C:\program files*\GraphViz*\bin\dot.exe',
             '/usr/local/bin/dot',
             '/usr/bin/dot'
@@ -120,8 +123,9 @@ function Export-PSGraph
             # explicit -OutputFormat was passed: infer it from the alias name. Both the
             # local variable (used below for the temp-file extension) and
             # $PSBoundParameters (what Get-GraphVizArgument actually reads) must be set.
+            $formatAliasPattern = '^(?<format>jpg|png|gif|imap|cmapx|jp2|json|pdf|plain|dot|svg)Graph$'
             if ( -Not $PSBoundParameters.ContainsKey('OutputFormat') -and
-                $MyInvocation.InvocationName -match '^(?<format>jpg|png|gif|imap|cmapx|jp2|json|pdf|plain|dot|svg)Graph$' )
+                $MyInvocation.InvocationName -match $formatAliasPattern )
             {
                 $OutputFormat = $Matches.format
                 $PSBoundParameters['OutputFormat'] = $OutputFormat
@@ -129,13 +133,16 @@ function Export-PSGraph
 
             if ( $PassThru )
             {
-                if ( $PSBoundParameters.ContainsKey('DestinationPath') -and -Not [string]::IsNullOrEmpty($DestinationPath) )
+                if ( $PSBoundParameters.ContainsKey('DestinationPath') -and
+                    -Not [string]::IsNullOrEmpty($DestinationPath) )
                 {
-                    throw '-PassThru cannot be combined with -DestinationPath; PassThru returns the rendered graph instead of writing a file.'
+                    throw '-PassThru cannot be combined with -DestinationPath; PassThru returns ' +
+                        'the rendered graph instead of writing a file.'
                 }
                 if ( $ShowGraph )
                 {
-                    throw '-PassThru cannot be combined with -ShowGraph; there is no destination file to show when the graph is returned as text.'
+                    throw '-PassThru cannot be combined with -ShowGraph; there is no destination ' +
+                        'file to show when the graph is returned as text.'
                 }
             }
 
@@ -145,24 +152,33 @@ function Export-PSGraph
             # PATH lookup (works regardless of install location/OS).
             if ( -Not $PSBoundParameters.ContainsKey('GraphVizPath') )
             {
-                $graphViz = Get-Command -Name 'dot' -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+                $graphViz = Get-Command -Name 'dot' -CommandType Application -ErrorAction SilentlyContinue |
+                    Select-Object -First 1
             }
 
             if ( $null -eq $graphViz )
             {
                 # Use Resolve-Path to test all passed/default paths
                 # Select only items with 'dot' BaseName and use first one
-                $graphViz = Resolve-Path -path $GraphVizPath -ErrorAction SilentlyContinue | Get-Item | Where-Object BaseName -eq 'dot' | Select-Object -First 1
+                $graphViz = Resolve-Path -path $GraphVizPath -ErrorAction SilentlyContinue |
+                    Get-Item |
+                    Where-Object BaseName -eq 'dot' |
+                    Select-Object -First 1
             }
 
             if ( $null -eq $graphViz )
             {
                 $GraphvizPathString = $GraphVizPath -Join " or "
-                throw "Could not find GraphViz installed on this system. Please run 'Install-GraphViz' (or 'Install-GraphViz -Scope CurrentUser' if you don't have admin rights) to install the needed binaries and libraries. This module looked for a 'dot' executable on PATH and in the following paths: $($GraphvizPathString). Optionally pass a path to your dot.exe file with the GraphVizPath parameter"
+                throw "Could not find GraphViz installed on this system. Please run " +
+                    "'Install-GraphViz' (or 'Install-GraphViz -Scope CurrentUser' if you don't " +
+                    "have admin rights) to install the needed binaries and libraries. This " +
+                    "module looked for a 'dot' executable on PATH and in the following paths: " +
+                    "$($GraphvizPathString). Optionally pass a path to your dot.exe file with " +
+                    "the GraphVizPath parameter"
             }
 
             $useStandardInput = $false
-            $standardInput = New-Object System.Text.StringBuilder
+            $standardInput = [System.Text.StringBuilder]::new()
 
             # Pipe DOT source to graphviz as UTF-8 without a BOM, regardless of the
             # caller's ambient $OutputEncoding (a BOM here breaks dot's parser).
@@ -212,7 +228,11 @@ function Export-PSGraph
                         $null = & $graphViz @($arguments + $file.path)
                         if ($LastExitCode)
                         {
-                            Write-Error -ErrorAction Stop -Exception ([System.Management.Automation.ParseException]::New())
+                            $writeErrorSplat = @{
+                                ErrorAction = 'Stop'
+                                Exception   = [System.Management.Automation.ParseException]::New()
+                            }
+                            Write-Error @writeErrorSplat
                         }
                     }
                 }
@@ -250,7 +270,8 @@ function Export-PSGraph
                     {
                         $file = [System.IO.Path]::GetRandomFileName()
                     }
-                    $PSBoundParameters["DestinationPath"] = Join-Path ([system.io.path]::GetTempPath()) "$file.$OutputFormat"
+                    $tempDirectory = [system.io.path]::GetTempPath()
+                    $PSBoundParameters["DestinationPath"] = Join-Path $tempDirectory "$file.$OutputFormat"
                 }
 
                 $arguments = Get-GraphVizArgument $PSBoundParameters
@@ -262,10 +283,12 @@ function Export-PSGraph
                     # console-codepage-dependent translation that can make dot exit nonzero;
                     # write to a temp file instead, matching how file-based -Source input is
                     # already handled above. PowerShell 7+ doesn't need this workaround.
-                    $tempDotPath = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.IO.Path]::GetRandomFileName()).dot"
+                    $tempFileName = "$([System.IO.Path]::GetRandomFileName()).dot"
+                    $tempDotPath = Join-Path ([System.IO.Path]::GetTempPath()) $tempFileName
                     try
                     {
-                        [System.IO.File]::WriteAllText($tempDotPath, $standardInput.ToString(), [System.Text.UTF8Encoding]::new($false))
+                        $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+                        [System.IO.File]::WriteAllText($tempDotPath, $standardInput.ToString(), $utf8NoBom)
 
                         # @($arguments) forces array context: a single-flag $arguments (e.g. just
                         # -Tsvg when -PassThru omits -o) would otherwise collapse to a scalar string,
@@ -284,7 +307,11 @@ function Export-PSGraph
 
                 if ($LastExitCode)
                 {
-                    Write-Error -ErrorAction Stop -Exception ([System.Management.Automation.ParseException]::New())
+                    $writeErrorSplat = @{
+                        ErrorAction = 'Stop'
+                        Exception   = [System.Management.Automation.ParseException]::New()
+                    }
+                    Write-Error @writeErrorSplat
                 }
 
                 if ( $PassThru )
