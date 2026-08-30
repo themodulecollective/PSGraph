@@ -1,6 +1,8 @@
 function Graph
 {
     <#
+        .SYNOPSIS
+        Defines a graph, the base collection that holds all other graph elements.
         .Description
         Defines a graph. The base collection that holds all other graph elements
 
@@ -20,7 +22,14 @@ function Graph
         .Notes
         The output is a string so it can be saved to a variable or piped to other commands
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute( "PSAvoidDefaultValueForMandatoryParameter", "" )]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        "PSAvoidDefaultValueForMandatoryParameter", "",
+        Justification = "Name and Attributes are each Mandatory only in the parameter sets where the
+caller names/attributes the graph, but their defaults ('g' and @{}) also have to serve the
+Default/Named sets, where the function body reads `$name and mutates `$Attributes unconditionally
+to support unnamed 'graph { }' usage. Removing either default would break that unnamed-graph
+support; it isn't an oversight."
+    )]
     [CmdletBinding( DefaultParameterSetName = 'Default' )]
     [Alias( 'DiGraph' )]
     [OutputType( [string] )]
@@ -30,12 +39,14 @@ function Graph
         [Parameter(
             Mandatory = $true,
             Position = 0,
-            ParameterSetName = 'Named'
+            ParameterSetName = 'Named',
+            HelpMessage = 'Name or ID of the graph.'
         )]
         [Parameter(
             Mandatory = $true,
             Position = 0,
-            ParameterSetName = 'NamedAttributes'
+            ParameterSetName = 'NamedAttributes',
+            HelpMessage = 'Name or ID of the graph.'
         )]
         [string]
         $Name = 'g',
@@ -44,22 +55,26 @@ function Graph
         [Parameter(
             Mandatory = $true,
             Position = 0,
-            ParameterSetName = 'Default'
+            ParameterSetName = 'Default',
+            HelpMessage = 'Scriptblock containing the Node/Edge/etc. commands that define the graph.'
         )]
         [Parameter(
             Mandatory = $true,
             Position = 1,
-            ParameterSetName = 'Named'
+            ParameterSetName = 'Named',
+            HelpMessage = 'Scriptblock containing the Node/Edge/etc. commands that define the graph.'
         )]
         [Parameter(
             Mandatory = $true,
             Position = 1,
-            ParameterSetName = 'Attributes'
+            ParameterSetName = 'Attributes',
+            HelpMessage = 'Scriptblock containing the Node/Edge/etc. commands that define the graph.'
         )]
         [Parameter(
             Mandatory = $true,
             Position = 2,
-            ParameterSetName = 'NamedAttributes'
+            ParameterSetName = 'NamedAttributes',
+            HelpMessage = 'Scriptblock containing the Node/Edge/etc. commands that define the graph.'
         )]
         [scriptblock]
         $ScriptBlock,
@@ -68,12 +83,14 @@ function Graph
         [Parameter(
             Mandatory = $true,
             Position = 1,
-            ParameterSetName = 'NamedAttributes'
+            ParameterSetName = 'NamedAttributes',
+            HelpMessage = 'Hashtable of graph attributes, e.g. @{ compound = $true }.'
         )]
         [Parameter(
             Mandatory = $true,
             Position = 0,
-            ParameterSetName = 'Attributes'
+            ParameterSetName = 'Attributes',
+            HelpMessage = 'Hashtable of graph attributes, e.g. @{ compound = $true }.'
         )]
         [hashtable]
         $Attributes = @{},
@@ -101,7 +118,7 @@ function Graph
             "{0}{1} {2} {{" -f (Get-Indent), $Type, $name
             $script:indent++
 
-            if ($Attributes -ne $null)
+            if ($null -ne $Attributes)
             {
                 ConvertTo-GraphVizAttribute -Attributes $Attributes -UseGraphStyle
             }

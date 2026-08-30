@@ -15,23 +15,6 @@ Function Entity
     .DESCRIPTION
     Convert an object into a PSGraph Record
 
-    .PARAMETER InputObject
-    The object to convert into a record
-
-    .PARAMETER Name
-    The name of the node
-
-    .PARAMETER Show
-    The different details to show in the record.
-
-    Name : The property name
-    Value : The property name and value
-    TypeName : The property name and the value type
-
-    .PARAMETER Property
-    The list of properties to display. Default is to list them all.
-    Supports wildcards.
-
     .EXAMPLE
 
     $sample = [pscustomobject]@{
@@ -45,21 +28,29 @@ Function Entity
     .NOTES
     General notes
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseProcessBlockForPipelineCommand", "", Justification = "Converts one InputObject into one Record by design; not a batch/collection cmdlet.")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        "PSUseProcessBlockForPipelineCommand", "",
+        Justification = "Converts one InputObject into one Record by design; not a batch/collection cmdlet."
+    )]
     [CmdletBinding()]
     param (
+        # The object to convert into a record
         [parameter(
             ValueFromPipeline,
             position = 0
         )]
         $InputObject,
 
+        # The name of the node
         [string]
         $Name,
 
+        # The list of properties to display. Default is to list them all. Supports wildcards.
         [string[]]
         $Property,
 
+        # The different details to show in the record: Name (property name), Value (name and
+        # value), or TypeName (name and the value's type).
         [EntityType]
         $Show = [EntityType]::TypeName
     )
@@ -120,7 +111,8 @@ Function Entity
                     {
                         $value = '[object[]]'
                     }
-                    Row ('<B>{0}</B> : <I>{1}</I>' -f $propertyName, ([System.Net.WebUtility]::HtmlEncode($value))) -Name $propertyName
+                    $encodedValue = [System.Net.WebUtility]::HtmlEncode($value)
+                    Row ('<B>{0}</B> : <I>{1}</I>' -f $propertyName, $encodedValue) -Name $propertyName
                 }
             }
         }

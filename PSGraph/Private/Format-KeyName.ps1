@@ -1,5 +1,20 @@
 function Format-KeyName
 {
+    <#
+        .Description
+        Lowercases a GraphViz attribute key name, except for the handful of
+        attributes (Damping, K, URL) that GraphViz requires in their exact case.
+
+        .Example
+        Format-KeyName 'FONTCOLOR'
+
+        fontcolor
+
+        .Example
+        Format-KeyName 'url'
+
+        URL
+    #>
     [OutputType('System.String')]
     [cmdletbinding()]
     param(

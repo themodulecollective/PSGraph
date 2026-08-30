@@ -1,6 +1,8 @@
 function SubGraph
 {
     <#
+        .SYNOPSIS
+        Defines a graph nested inside another graph, to sub-group elements.
         .Description
         A graph that is nested inside another graph to sub group elements
 
@@ -18,19 +20,27 @@ function SubGraph
         This is just like the graph or digraph, except the name must match cluster_#
         The numbering must start at 0 and work up or the processor will fail.
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidDefaultValueForMandatoryParameter", "")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        "PSAvoidDefaultValueForMandatoryParameter", "",
+        Justification = "Attributes is only Mandatory in the Attributes/NamedAttributes sets, but the
+default (@{}) also has to serve the Default/Named sets, since it's passed to Graph unconditionally
+regardless of parameter set. Removing the default would break unnamed/attribute-less subgraph usage;
+it isn't an oversight."
+    )]
     [cmdletbinding(DefaultParameterSetName = 'Default')]
     param(
         # Name of subgraph
         [Parameter(
             Mandatory = $true,
             Position = 0,
-            ParameterSetName = 'Named'
+            ParameterSetName = 'Named',
+            HelpMessage = 'Name of the subgraph (must match cluster_# numbering, starting at 0).'
         )]
         [Parameter(
             Mandatory = $true,
             Position = 0,
-            ParameterSetName = 'NamedAttributes'
+            ParameterSetName = 'NamedAttributes',
+            HelpMessage = 'Name of the subgraph (must match cluster_# numbering, starting at 0).'
         )]
         [alias('ID')]
         $Name,
@@ -39,22 +49,26 @@ function SubGraph
         [Parameter(
             Mandatory = $true,
             Position = 0,
-            ParameterSetName = 'Default'
+            ParameterSetName = 'Default',
+            HelpMessage = 'Scriptblock containing the Node/Edge/etc. commands that define the subgraph.'
         )]
         [Parameter(
             Mandatory = $true,
             Position = 1,
-            ParameterSetName = 'Named'
+            ParameterSetName = 'Named',
+            HelpMessage = 'Scriptblock containing the Node/Edge/etc. commands that define the subgraph.'
         )]
         [Parameter(
             Mandatory = $true,
             Position = 1,
-            ParameterSetName = 'Attributes'
+            ParameterSetName = 'Attributes',
+            HelpMessage = 'Scriptblock containing the Node/Edge/etc. commands that define the subgraph.'
         )]
         [Parameter(
             Mandatory = $true,
             Position = 2,
-            ParameterSetName = 'NamedAttributes'
+            ParameterSetName = 'NamedAttributes',
+            HelpMessage = 'Scriptblock containing the Node/Edge/etc. commands that define the subgraph.'
         )]
         [scriptblock]
         $ScriptBlock,
@@ -63,12 +77,14 @@ function SubGraph
         [Parameter(
             Mandatory = $true,
             Position = 1,
-            ParameterSetName = 'NamedAttributes'
+            ParameterSetName = 'NamedAttributes',
+            HelpMessage = 'Hashtable of graph attributes, e.g. @{ compound = $true }.'
         )]
         [Parameter(
             Mandatory = $true,
             Position = 0,
-            ParameterSetName = 'Attributes'
+            ParameterSetName = 'Attributes',
+            HelpMessage = 'Hashtable of graph attributes, e.g. @{ compound = $true }.'
         )]
         [hashtable]
         $Attributes = @{}

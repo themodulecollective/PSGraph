@@ -11,7 +11,15 @@ function New-EdgeAttributeSet
         arrowhead/color/font values - and normalizes casing for the ones GraphViz requires lowercase.
 
         .EXAMPLE
-        $attrs = New-EdgeAttributeSet -Direction both -ArrowHead crow -ArrowTail lcrow -Color Blue -Style dashed -Label test
+        $edgeAttributeSetSplat = @{
+            Direction = 'both'
+            ArrowHead = 'crow'
+            ArrowTail = 'lcrow'
+            Color     = 'Blue'
+            Style     = 'dashed'
+            Label     = 'test'
+        }
+        $attrs = New-EdgeAttributeSet @edgeAttributeSetSplat
         edge one two $attrs
 
         This defines a two-way dashed edge, in blue, with a "crow" head and left-half-crow tail.
@@ -21,7 +29,11 @@ function New-EdgeAttributeSet
         attribute value including numeric/boolean ones, which throws - this version only
         lowercases the string-valued attributes GraphViz actually requires lowercase.
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        "PSUseShouldProcessForStateChangingFunctions", "",
+        Justification = "Despite the New- verb, this builds and returns a hashtable in memory - it
+doesn't change any external/persistent state, so ShouldProcess doesn't apply."
+    )]
     [CmdletBinding()]
     [Alias('EdgeAttributes')]
     [OutputType([hashtable])]
@@ -123,7 +135,11 @@ function New-EdgeAttributeSet
     }
 
     # Passed through unchanged - numeric, boolean, or free-form text where case is meaningful
-    foreach ($param in @('ArrowSize', 'Constraint', 'FontName', 'FontSize', 'HeadLabel', 'Label', 'LabelFontName', 'LabelFontSize', 'PenWidth', 'TailLabel'))
+    $passthroughParams = @(
+        'ArrowSize', 'Constraint', 'FontName', 'FontSize', 'HeadLabel', 'Label',
+        'LabelFontName', 'LabelFontSize', 'PenWidth', 'TailLabel'
+    )
+    foreach ($param in $passthroughParams)
     {
         if ($PSBoundParameters.ContainsKey($param))
         {

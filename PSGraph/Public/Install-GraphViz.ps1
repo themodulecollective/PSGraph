@@ -1,6 +1,8 @@
 function Install-GraphViz
 {
     <#
+        .SYNOPSIS
+        Installs the GraphViz package using an online provider.
         .Description
         Installs GraphViz package using online provider
         .PARAMETER Scope
@@ -40,25 +42,37 @@ function Install-GraphViz
                     {
                         try
                         {
-                            Register-PackageSource -Name Chocolatey -ProviderName Chocolatey -Location http://chocolatey.org/api/v2/ -ErrorAction Stop
+                            $registerPackageSourceSplat = @{
+                                Name         = 'Chocolatey'
+                                ProviderName = 'Chocolatey'
+                                Location     = 'http://chocolatey.org/api/v2/'
+                                ErrorAction  = 'Stop'
+                            }
+                            Register-PackageSource @registerPackageSourceSplat
                         }
                         catch
                         {
-                            # Registering Chocolatey typically requires admin rights. Fall back to the
-                            # (older, but still functional) GraphViz package on nuget.org instead of failing outright.
-                            $nugetSource = Get-PackageSource | Where-Object { $_.Location -like 'https://api.nuget.org/v*' }
+                            # Registering Chocolatey typically requires admin rights. Fall back to
+                            # the (older, but still functional) GraphViz package on nuget.org
+                            # instead of failing outright.
+                            $nugetSource = Get-PackageSource |
+                                Where-Object { $_.Location -like 'https://api.nuget.org/v*' }
                             if ( -Not $nugetSource )
                             {
-                                Write-Warning 'No nuget.org package source found to fall back on. Cannot install GraphViz.'
+                                Write-Warning ('No nuget.org package source found to fall back on. ' +
+                                    'Cannot install GraphViz.')
                                 throw
                             }
 
-                            Write-Warning 'Could not register a Chocolatey package provider (this typically requires admin rights). Falling back to the older GraphViz package on nuget.org.'
+                            Write-Warning ('Could not register a Chocolatey package provider ' +
+                                '(this typically requires admin rights). Falling back to the ' +
+                                'older GraphViz package on nuget.org.')
                             Write-Warning 'Install Chocolatey and re-run this command to get the latest GraphViz.'
                         }
                     }
 
-                    Find-Package graphviz | Install-Package -Verbose -ForceBootstrap -Scope $Scope
+                    Find-Package graphviz -ErrorAction Stop |
+                        Install-Package -Verbose -ForceBootstrap -Scope $Scope -ErrorAction Stop
                 }
             }
         }

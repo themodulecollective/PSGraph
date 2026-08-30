@@ -25,7 +25,8 @@ task Pester {
 
     if ($results.CodeCoverage.NumberOfCommandsAnalyzed -gt 0)
     {
-        $codeCoverage = $results.CodeCoverage.NumberOfCommandsExecuted / $results.CodeCoverage.NumberOfCommandsAnalyzed
+        $codeCoverage = $results.CodeCoverage.NumberOfCommandsExecuted /
+            $results.CodeCoverage.NumberOfCommandsAnalyzed
 
         if ($codeCoverage -lt $requiredPercent)
         {

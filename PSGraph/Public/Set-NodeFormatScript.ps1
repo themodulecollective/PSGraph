@@ -1,6 +1,8 @@
 function Set-NodeFormatScript
 {
     <#
+        .SYNOPSIS
+        Sets a custom script used to format every node value.
         .Description
         Allows the definition of a custom node format
 

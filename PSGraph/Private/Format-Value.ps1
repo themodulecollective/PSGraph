@@ -1,11 +1,32 @@
 function Format-Value
 {
+    <#
+        .Description
+        Formats a single value for use as a DOT attribute/node value: quotes it,
+        passes HTML-like labels (<...>) through unquoted, and resolves record
+        port notation (node:port) for -Edge/-Node values.
+
+        .Example
+        Format-Value 'my value'
+
+        "my value"
+
+        .Example
+        Format-Value '<b>bold</b>'
+
+        <<b>bold</b>>
+    #>
+    [OutputType([string])]
+    [CmdletBinding()]
     param(
+        # The value to format
         $value,
 
+        # Formatting the source/target of an edge (applies -CustomFormat and resolves record ports)
         [switch]
         $Edge,
 
+        # Formatting a node value (applies -CustomFormat)
         [switch]
         $Node
     )

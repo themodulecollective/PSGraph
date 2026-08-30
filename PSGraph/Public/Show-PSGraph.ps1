@@ -21,11 +21,16 @@ function Show-PSGraph
         [string]
         ${DestinationPath},
 
-        [ValidateSet('jpg', 'png', 'gif', 'imap', 'cmapx', 'jp2', 'json', 'pdf', 'plain', 'dot', 'svg')]
+        [ValidateSet(
+            'jpg', 'png', 'gif', 'imap', 'cmapx', 'jp2', 'json', 'pdf', 'plain', 'dot', 'svg'
+        )]
         [string]
         ${OutputFormat},
 
-        [ValidateSet('Hierarchical', 'SpringModelSmall', 'SpringModelMedium', 'SpringModelLarge', 'Radial', 'Circular', 'dot', 'neato', 'fdp', 'sfdp', 'twopi', 'circo')]
+        [ValidateSet(
+            'Hierarchical', 'SpringModelSmall', 'SpringModelMedium', 'SpringModelLarge',
+            'Radial', 'Circular', 'dot', 'neato', 'fdp', 'sfdp', 'twopi', 'circo'
+        )]
         [string]
         ${LayoutEngine},
 
@@ -42,7 +47,9 @@ function Show-PSGraph
             {
                 $PSBoundParameters['OutBuffer'] = 1
             }
-            $wrappedCmd = $ExecutionContext.InvokeCommand.GetCommand('Export-PSGraph', [System.Management.Automation.CommandTypes]::Function)
+            $wrappedCmd = $ExecutionContext.InvokeCommand.GetCommand(
+                'Export-PSGraph', [System.Management.Automation.CommandTypes]::Function
+            )
             $scriptCmd = {& $wrappedCmd @PSBoundParameters -ShowGraph }
             $steppablePipeline = $scriptCmd.GetSteppablePipeline()
             $steppablePipeline.Begin($PSCmdlet)

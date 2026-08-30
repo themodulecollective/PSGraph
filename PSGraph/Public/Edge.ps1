@@ -1,6 +1,8 @@
 function Edge
 {
     <#
+        .SYNOPSIS
+        Defines an edge between two or more nodes.
         .Description
         This defines an edge between two or more nodes
 
@@ -44,7 +46,8 @@ function Edge
         }
 
         .Notes
-        If an array is specified for the From property, but not for the To property, then the From list will be procesed in order and will map the array in a chain.
+        If an array is specified for the From property, but not for the To property, then the
+        From list will be procesed in order and will map the array in a chain.
 
     #>
     [cmdletbinding( DefaultParameterSetName = 'Node' )]
@@ -53,12 +56,14 @@ function Edge
         [Parameter(
             Mandatory = $true,
             Position = 0,
-            ParameterSetName = 'Node'
+            ParameterSetName = 'Node',
+            HelpMessage = 'The starting node(s) (source) of the edge.'
         )]
         [Parameter(
             Mandatory = $true,
             Position = 0,
-            ParameterSetName = 'Attributes'
+            ParameterSetName = 'Attributes',
+            HelpMessage = 'The starting node(s) (source) of the edge.'
         )]
         [alias( 'NodeName', 'Name', 'SourceName', 'LeftHandSide', 'lhs' )]
         [string[]]
@@ -78,7 +83,8 @@ function Edge
         [Parameter(
             Mandatory = $true,
             Position = 1,
-            ParameterSetName = 'Attributes'
+            ParameterSetName = 'Attributes',
+            HelpMessage = 'Hashtable of edge attributes, e.g. @{ label = "text" }.'
         )]
         [Parameter(
             Position = 2,
@@ -96,7 +102,8 @@ function Edge
             Mandatory = $true,
             Position = 0,
             ValueFromPipeline = $true,
-            ParameterSetName = 'script'
+            ParameterSetName = 'script',
+            HelpMessage = 'Objects to derive edge endpoints from, via -FromScript/-ToScript.'
         )]
         [Alias('InputObject')]
         [Object[]]
@@ -137,7 +144,9 @@ function Edge
         try
         {
 
-            if ( $Node.count -eq 1 -and $node[0] -is [Hashtable] -and !$PSBoundParameters.ContainsKey('FromScript') -and !$PSBoundParameters.ContainsKey('ToScript') )
+            if ( $Node.count -eq 1 -and $node[0] -is [Hashtable] -and
+                !$PSBoundParameters.ContainsKey('FromScript') -and
+                !$PSBoundParameters.ContainsKey('ToScript') )
             {
                 #Deducing the pattern 'edge @{}' as default edge definition
                 $GraphVizAttribute = ConvertTo-GraphVizAttribute -Attributes $Node[0]
@@ -151,7 +160,13 @@ function Edge
                     $fromValue = ( @($item).ForEach($FromScript) )
                     $toValue = ( @($item).ForEach($ToScript) )
 
-                    $LiteralAttribute = ConvertTo-GraphVizAttribute -Attributes $Attributes -InputObject $item -From $fromValue -To $toValue
+                    $convertParams = @{
+                        Attributes  = $Attributes
+                        InputObject = $item
+                        From        = $fromValue
+                        To          = $toValue
+                    }
+                    $LiteralAttribute = ConvertTo-GraphVizAttribute @convertParams
 
                     edge -From $fromValue -To $toValue -LiteralAttribute $LiteralAttribute
                 }
@@ -167,7 +182,8 @@ function Edge
                         {
                             if ( [string]::IsNullOrEmpty( $LiteralAttribute ) )
                             {
-                                $GraphVizAttribute = ConvertTo-GraphVizAttribute -Attributes $Attributes -From $sNode -To $tNode
+                                $convertParams = @{ Attributes = $Attributes; From = $sNode; To = $tNode }
+                                $GraphVizAttribute = ConvertTo-GraphVizAttribute @convertParams
                             }
 
                             if ($GraphVizAttribute -match 'ltail=' -or $GraphVizAttribute -match 'lhead=')
@@ -191,7 +207,12 @@ function Edge
                     {
                         if ([string]::IsNullOrEmpty( $LiteralAttribute ) )
                         {
-                            $GraphVizAttribute = ConvertTo-GraphVizAttribute -Attributes $Attributes -From $From[$index] -To $From[$index + 1]
+                            $convertParams = @{
+                                Attributes = $Attributes
+                                From       = $From[$index]
+                                To         = $From[$index + 1]
+                            }
+                            $GraphVizAttribute = ConvertTo-GraphVizAttribute @convertParams
                         }
                         ('{0}{1}->{2} {3}' -f (Get-Indent),
                             (Format-Value $From[$index] -Edge),

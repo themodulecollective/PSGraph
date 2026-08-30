@@ -38,6 +38,7 @@ function ConvertTo-GraphVizAttribute
         Script blocks are supported in the hashtable for some commands.
         InputObject is the $_ value in the scriptblock
     #>
+    [CmdletBinding()]
     param(
         [hashtable]
         $Attributes = @{},
@@ -71,7 +72,7 @@ function ConvertTo-GraphVizAttribute
         $Attributes.lhead = $script:SubGraphList[$To]
     }
 
-    if ($Attributes -ne $null -and $Attributes.Keys.Count -gt 0)
+    if ($null -ne $Attributes -and $Attributes.Keys.Count -gt 0)
     {
         $values = foreach ( $key in $Attributes.GetEnumerator() )
         {

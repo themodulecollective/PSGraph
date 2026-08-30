@@ -24,7 +24,7 @@ function Get-GraphVizArgument
 
     process
     {
-        if ( $InputObject -ne $null )
+        if ( $null -ne $InputObject )
         {
             $InputObject = Update-DefaultArgument -InputObject $InputObject
             $arguments = Get-TranslatedArgument -InputObject $InputObject

@@ -1,6 +1,8 @@
 function Rank
 {
     <#
+        .SYNOPSIS
+        Places specified nodes at the same level on the chart.
         .Description
         Places specified nodes at the same level on the chart as a way to give some guidance to node layout
 
@@ -38,7 +40,8 @@ function Rank
         [Parameter(
             Mandatory = $true,
             ValueFromPipeline = $true,
-            Position = 0
+            Position = 0,
+            HelpMessage = 'The nodes to place at the same rank/level.'
         )]
         [object[]]
         $Nodes,
@@ -64,7 +67,7 @@ function Rank
 
     begin
     {
-        $values = @()
+        $values = [System.Collections.Generic.List[object]]::new()
     }
 
     process
@@ -72,17 +75,18 @@ function Rank
         try
         {
 
-            $itemList = New-Object System.Collections.Queue
+            $itemList = [System.Collections.Queue]::new()
             if ( $null -ne $Nodes )
             {
                 $Nodes | ForEach-Object {$_} | ForEach-Object {$itemList.Enqueue($_)}
             }
             if ( $null -ne $AdditionalNodes )
             {
-                $AdditionalNodes | ForEach-Object {$_} | ForEach-Object {$_} | ForEach-Object {$itemList.Enqueue($_)}
+                $AdditionalNodes | ForEach-Object {$_} | ForEach-Object {$_} |
+                    ForEach-Object {$itemList.Enqueue($_)}
             }
 
-            $Values += foreach ($item in $itemList)
+            $itemsThisCall = foreach ($item in $itemList)
             {
                 # Adding these arrays ceates an empty element that we want to exclude
                 if ( -Not [string]::IsNullOrWhiteSpace( $item ) )
@@ -99,6 +103,7 @@ function Rank
                     Format-Value $nodeName -Node
                 }
             }
+            $values.AddRange(@($itemsThisCall))
         }
         catch
         {
