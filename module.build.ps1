@@ -1,6 +1,5 @@
 $Script:ModuleName = Get-ChildItem -Path (Join-Path $PSScriptRoot '*\*.psm1') |
     Select-Object -ExpandProperty BaseName
-$Script:CodeCoveragePercent = 0.0 # 0 to 1
 . $PSScriptRoot\BuildTasks\InvokeBuildInit.ps1
 
 task Default Build, Test, UpdateSource

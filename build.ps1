@@ -8,8 +8,7 @@ $Script:Modules = @(
     'BuildHelpers',
     'InvokeBuild',
     'platyPS',
-    'PSScriptAnalyzer',
-    'DependsOn'
+    'PSScriptAnalyzer'
 )
 
 # Pinned explicitly: Pester 4.x and 5.x can be installed side by side, which

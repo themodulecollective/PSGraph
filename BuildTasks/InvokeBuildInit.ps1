@@ -19,7 +19,7 @@ Write-Verbose "  ManifestPath [$ManifestPath]" -Verbose
 $Script:ModulePath = Join-Path -Path $Destination -ChildPath "$ModuleName.psm1"
 Write-Verbose "  ModulePath [$ModulePath]" -Verbose
 
-$Script:Folders = 'Classes', 'Includes', 'Internal', 'Private', 'Public', 'Resources'
+$Script:Folders = 'Includes', 'Internal', 'Private', 'Public', 'Resources'
 Write-Verbose "  Folders [$Folders]" -Verbose
 
 $Script:TestFile = "$BuildRoot\Output\TestResults_PS$PSVersion`_$TimeStamp.xml"
