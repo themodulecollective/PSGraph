@@ -22,7 +22,10 @@ function Install-GraphViz
     {
         try
         {
-            if ( $IsMacOS )
+            # $IsMacOS doesn't exist on Windows PowerShell (Desktop) or on Core before 6.0;
+            # guard the reference instead of relying on undefined-variable-as-falsy.
+            $runningOnMacOS = ( Test-Path Variable:IsMacOS ) -and $IsMacOS
+            if ( $runningOnMacOS )
             {
                 if ( $PSCmdlet.ShouldProcess( 'Install graphviz' ) )
                 {

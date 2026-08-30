@@ -256,7 +256,32 @@ function Export-PSGraph
                 $arguments = Get-GraphVizArgument $PSBoundParameters
                 Write-Verbose " Arguments: $($arguments -join ' ')"
 
-                $result = $standardInput.ToString() | & $graphViz @($arguments)
+                if ( $PSVersionTable.PSEdition -eq 'Desktop' )
+                {
+                    # Windows PowerShell's native-command pipeline encodes piped stdin using
+                    # console-codepage-dependent translation that can make dot exit nonzero;
+                    # write to a temp file instead, matching how file-based -Source input is
+                    # already handled above. PowerShell 7+ doesn't need this workaround.
+                    $tempDotPath = Join-Path ([System.IO.Path]::GetTempPath()) "$([System.IO.Path]::GetRandomFileName()).dot"
+                    try
+                    {
+                        [System.IO.File]::WriteAllText($tempDotPath, $standardInput.ToString(), [System.Text.UTF8Encoding]::new($false))
+
+                        # @($arguments) forces array context: a single-flag $arguments (e.g. just
+                        # -Tsvg when -PassThru omits -o) would otherwise collapse to a scalar string,
+                        # making '+' concatenate the path onto the flag instead of appending an argument.
+                        $result = & $graphViz @(@($arguments) + $tempDotPath)
+                    }
+                    finally
+                    {
+                        Remove-Item -Path $tempDotPath -ErrorAction SilentlyContinue
+                    }
+                }
+                else
+                {
+                    $result = $standardInput.ToString() | & $graphViz @($arguments)
+                }
+
                 if ($LastExitCode)
                 {
                     Write-Error -ErrorAction Stop -Exception ([System.Management.Automation.ParseException]::New())
