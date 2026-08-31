@@ -1,0 +1,133 @@
+TOPIC
+    about_PSGraph
+
+SHORT DESCRIPTION
+    PSGraph is a small DSL (Domain Specific Language) for generating
+    GraphViz graphs from PowerShell. It turns PowerShell objects and
+    collections into GraphViz's DOT text, then optionally renders that
+    text into an image.
+
+LONG DESCRIPTION
+    PSGraph does not parse anything of its own. `Graph { ... }` is
+    ordinary PowerShell: the `{ ... }` is a scriptblock literal, and
+    `Graph` runs it directly with `& $ScriptBlock`. Every command called
+    inside that block - `Node`, `Edge`, `Rank`, `SubGraph`, and the rest -
+    is just an ordinary function call that happens to emit a line of DOT
+    text as its pipeline output. `Graph` collects that output, wraps it
+    in `digraph { ... }`, and returns the whole thing as a string array.
+
+    Because indentation and cluster nesting have to be shared between
+    calls that have no direct reference to one another, PSGraph tracks
+    them with a small amount of module-scoped state (current indent
+    depth, the active subgraph list) that gets set when a `Graph` block
+    opens and cleared when it closes. You do not need to manage this
+    yourself; it only matters if you are reading the source.
+
+    The result of a `Graph` block is plain text in the DOT language, so
+    it can be inspected, saved, or piped straight into `Export-PSGraph`
+    to render an image with GraphViz.
+
+  COMMANDS
+
+    Graph (alias DiGraph)
+        The top-level container. Opens a graph, runs the scriptblock
+        that defines its contents, and closes it.
+
+    Node
+        Declares one or more nodes and their attributes.
+
+    Edge
+        Declares an edge (or a chain, or a cross-product of edges)
+        between nodes.
+
+    SubGraph
+        A graph nested inside another graph, for clustering related
+        nodes together.
+
+    Rank
+        Places the given nodes at the same level in the layout.
+
+    Inline
+        Passes raw DOT text through untouched, for GraphViz syntax
+        PSGraph's DSL does not model directly.
+
+    Record, Row, Cells, Entity
+        Build GraphViz's HTML-like table nodes. `Record` is the table;
+        `Row` is one hand-built row; `Cells` converts a whole collection
+        of pipeline objects into rows at once; `Entity` converts a
+        single object into a `Record` automatically.
+
+    New-NodeAttributeSet (alias NodeAttributes)
+    New-EdgeAttributeSet (alias EdgeAttributes)
+        Build a case-correct GraphViz attribute hashtable from
+        parameters, with tab completion for shape, color, and font
+        values - GraphViz attribute names and values are case-sensitive,
+        and these catch mistakes before they reach GraphViz.
+
+    Export-PSGraph (aliases pngGraph, svgGraph, pdfGraph, dotGraph, ...)
+        Shells out to GraphViz's `dot` executable to render DOT source
+        into an image. Each supported output format also has its own
+        alias, e.g. `$dot | svgGraph -Destination out.svg`.
+
+    Show-PSGraph
+        Shorthand for `Export-PSGraph -ShowGraph`.
+
+    Set-NodeFormatScript
+        Sets a scriptblock used to reformat every node/edge ID PSGraph
+        emits, for cases where your source data's names need cleanup
+        before they become DOT identifiers.
+
+    Install-GraphViz
+        Installs the native GraphViz binaries PSGraph shells out to
+        (Chocolatey on Windows, with a nuget.org fallback for non-admin
+        installs via -Scope CurrentUser; Homebrew on macOS).
+
+    Run `Get-Help <command> -Full` for any of these, e.g.
+    `Get-Help Record -Full`, for parameters and examples.
+
+  A NOTE ON THE 'Node' COMMAND NAME
+
+    The bare `Node` command name can collide with Node.js-related
+    tooling or autoload behavior present on some systems. This has been
+    discussed upstream for years with no consensus reached, and is an
+    intentionally deferred design question, not an oversight: renaming
+    or aliasing `Node` would be a breaking change to the DSL and will
+    only happen as part of a deliberate major-version change with its
+    own migration notes.
+
+EXAMPLES
+    # A minimal graph, captured to a variable
+    $dot = Graph {
+        Edge hello world
+    }
+
+    # The same graph, rendered and shown immediately
+    Graph {
+        Edge hello world
+    } | Export-PSGraph -ShowGraph
+
+    # Data-driven: build nodes and edges from real objects
+    $processes = Get-Process | Select-Object -First 10
+    Graph @{rankdir = 'LR'} {
+        node @{shape = 'box'}
+        node $processes -NodeScript {$_.Id} -Attributes @{label = {$_.ProcessName}}
+        edge $processes -FromScript {$_.Parent.Id} -ToScript {$_.Id}
+    } | Show-PSGraph
+
+SEE ALSO
+    Full command reference and more examples:
+    http://psgraph.readthedocs.io
+
+    Source, issues, and this fork's changelog:
+    https://github.com/themodulecollective/PSGraph
+
+    GraphViz's own documentation, for DOT-language and attribute details
+    PSGraph does not wrap in a dedicated parameter:
+    https://graphviz.org/documentation/
+
+KEYWORDS
+    PSGraph
+    GraphViz
+    DOT
+    Graph
+    DSL

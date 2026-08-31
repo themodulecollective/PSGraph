@@ -5,11 +5,33 @@
 
 PSGraph is a helper module implemented as a DSL (Domain Specific Language) for generating GraphViz graphs. The goal is to make it easier to generate graphs using Powershell. The DSL adds these commands that are explained below.
 
+**Basics**
+
 * [graph](http://psgraph.readthedocs.io/en/latest/Command-Graph/)
 * [edge](http://psgraph.readthedocs.io/en/latest/Command-Edge/)
 * [node](http://psgraph.readthedocs.io/en/latest/Command-Node/)
 * [subgraph](http://psgraph.readthedocs.io/en/latest/Command-SubGraph/)
 * [rank](http://psgraph.readthedocs.io/en/latest/Command-Rank/)
+* [inline](http://psgraph.readthedocs.io/en/latest/Command-Inline/)
+
+**Table-style nodes**
+
+* [record](http://psgraph.readthedocs.io/en/latest/Command-Record/)
+* [row](http://psgraph.readthedocs.io/en/latest/Command-Row/)
+* [cells](http://psgraph.readthedocs.io/en/latest/Command-Cells/)
+* [entity](http://psgraph.readthedocs.io/en/latest/Command-Entity/)
+
+**Attribute sets**
+
+* [New-NodeAttributeSet](http://psgraph.readthedocs.io/en/latest/Command-New-NodeAttributeSet/) (alias `NodeAttributes`)
+* [New-EdgeAttributeSet](http://psgraph.readthedocs.io/en/latest/Command-New-EdgeAttributeSet/) (alias `EdgeAttributes`)
+* [Set-NodeFormatScript](http://psgraph.readthedocs.io/en/latest/Command-Set-NodeFormatScript/)
+
+**Rendering**
+
+* [Export-PSGraph](http://psgraph.readthedocs.io/en/latest/Command-Export-PSGraph/) — also available as format-specific aliases (`svgGraph`, `pngGraph`, `pdfGraph`, `dotGraph`, ...)
+* [Show-PSGraph](http://psgraph.readthedocs.io/en/latest/Command-Show-PSGraph/)
+* [Install-GraphViz](http://psgraph.readthedocs.io/en/latest/Command-Install-GraphViz/)
 
 ## What is GraphViz?
 
@@ -168,6 +190,8 @@ PSGraph supports Windows PowerShell 5.1+ and PowerShell 7+, on Windows, Linux, a
     # Install GraphViz (Chocolatey on Windows, Homebrew on macOS; on Linux use your
     # distro's package manager, e.g. `apt-get install graphviz`)
     Install-GraphViz
+
+Once imported, `Get-Help about_PSGraph` gives a conceptual overview of the DSL from inside PowerShell, and `Get-Help <command> -Full` (e.g. `Get-Help Record -Full`) covers any individual command in more depth than this readme.
 
 # Generating a graph image
 I am still working out the workflow for this, but for now just do this.

@@ -44,7 +44,7 @@ You can name a row like you name a node. By giving a row a name, we can target i
         Edge Table1:Row3 -to Table2:Row2
     } | Show-PSGraph
 
-![Two nodes with cross edges to rows](/img/recordedge.png)
+![Two nodes with cross edges to rows](images/recordedge.png)
 
 If the label is a simple word with no spaces or symbols, the row will use that as the default row name. If you start injecting custom HTML into your row, then there will not be a default row name.
 
