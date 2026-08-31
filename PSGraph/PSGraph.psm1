@@ -27,7 +27,7 @@ $functions = Get-ChildItem -Path "$PSScriptRoot\Public" -Filter '*.ps1' -Recurse
 
 # Keep in sync with PSGraph.psd1's AliasesToExport
 Export-ModuleMember -Function $functions.BaseName -Alias @(
-    'DiGraph', 'NodeAttributes', 'EdgeAttributes',
+    'DiGraph', 'NodeAttributes', 'EdgeAttributes', 'GraphAttributes',
     'jpgGraph', 'pngGraph', 'gifGraph', 'imapGraph', 'cmapxGraph',
     'jp2Graph', 'jsonGraph', 'pdfGraph', 'plainGraph', 'dotGraph', 'svgGraph'
 )

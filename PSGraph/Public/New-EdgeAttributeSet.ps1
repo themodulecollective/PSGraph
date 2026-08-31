@@ -99,6 +99,10 @@ doesn't change any external/persistent state, so ShouldProcess doesn't apply."
         [double]
         $Length,
 
+        # Minimum rank difference (in ranks) enforced between the edge's two nodes
+        [int16]
+        $MinLen,
+
         # Width of the pen, in points, used to draw lines and curves
         [double]
         $PenWidth,
@@ -110,7 +114,24 @@ doesn't change any external/persistent state, so ShouldProcess doesn't apply."
 
         # Text label placed near the tail of the edge
         [string]
-        $TailLabel
+        $TailLabel,
+
+        # Tooltip text shown on hover in SVG/interactive output formats
+        [string]
+        $Tooltip,
+
+        # Hyperlink attached to the edge in SVG/PostScript/map output formats
+        [Alias('Href')]
+        [string]
+        $URL,
+
+        # How strongly GraphViz's layout should try to keep the edge close to its preferred length
+        [double]
+        $Weight,
+
+        # External label placed near the edge without affecting layout
+        [string]
+        $XLabel
     )
 
     $values = @{}
@@ -137,7 +158,8 @@ doesn't change any external/persistent state, so ShouldProcess doesn't apply."
     # Passed through unchanged - numeric, boolean, or free-form text where case is meaningful
     $passthroughParams = @(
         'ArrowSize', 'Constraint', 'FontName', 'FontSize', 'HeadLabel', 'Label',
-        'LabelFontName', 'LabelFontSize', 'PenWidth', 'TailLabel'
+        'LabelFontName', 'LabelFontSize', 'MinLen', 'PenWidth', 'TailLabel', 'Tooltip', 'URL',
+        'Weight', 'XLabel'
     )
     foreach ($param in $passthroughParams)
     {

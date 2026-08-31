@@ -72,8 +72,13 @@ function Export-PSGraph
         [string]
         $DestinationPath,
 
-        # The file type used when generating an image
-        [ValidateSet('jpg', 'png', 'gif', 'imap', 'cmapx', 'jp2', 'json', 'pdf', 'plain', 'dot', 'svg')]
+        # The file type used when generating an image. Availability depends on how the local
+        # GraphViz build was compiled - run 'dot -T?' to see what your install actually supports.
+        [ValidateSet(
+            'jpg', 'png', 'gif', 'imap', 'cmapx', 'jp2', 'json', 'pdf', 'plain', 'dot', 'svg',
+            'svgz', 'svg_inline', 'eps', 'ps', 'ps2', 'xdot', 'dot_json', 'xdot_json', 'json0',
+            'canon', 'gv', 'fig', 'bmp', 'tif', 'tiff', 'wbmp', 'pic', 'plain-ext'
+        )]
         [string]
         $OutputFormat = 'png',
 
@@ -90,7 +95,9 @@ function Export-PSGraph
             'fdp',
             'sfdp',
             'twopi',
-            'circo'
+            'circo',
+            'osage',
+            'patchwork'
         )]
         [string]
         $LayoutEngine,

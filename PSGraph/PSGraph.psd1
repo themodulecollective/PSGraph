@@ -12,7 +12,7 @@
     RootModule        = 'PSGraph.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '3.1.0'
+    ModuleVersion     = '3.2.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Desktop', 'Core')
@@ -74,8 +74,8 @@
     # delete the entry, use an empty array if there are no functions to export.
     FunctionsToExport = @(
         'Cells', 'Edge', 'Entity', 'Export-PSGraph', 'Graph', 'Inline', 'Install-GraphViz',
-        'New-EdgeAttributeSet', 'New-NodeAttributeSet', 'Node', 'Rank', 'Record', 'Row',
-        'Set-NodeFormatScript', 'Show-PSGraph', 'SubGraph'
+        'New-EdgeAttributeSet', 'New-GraphAttributeSet', 'New-NodeAttributeSet', 'Node', 'Rank',
+        'Record', 'Row', 'Set-NodeFormatScript', 'Show-PSGraph', 'SubGraph'
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not
@@ -88,7 +88,7 @@
     # Aliases to export from this module, for best performance, do not use wildcards and do not
     # delete the entry, use an empty array if there are no aliases to export.
     AliasesToExport   = @(
-        'digraph', 'NodeAttributes', 'EdgeAttributes',
+        'digraph', 'NodeAttributes', 'EdgeAttributes', 'GraphAttributes',
         'jpgGraph', 'pngGraph', 'gifGraph', 'imapGraph', 'cmapxGraph',
         'jp2Graph', 'jsonGraph', 'pdfGraph', 'plainGraph', 'dotGraph', 'svgGraph'
     )
@@ -122,6 +122,26 @@
 
             # ReleaseNotes of this module
             ReleaseNotes = @'
+3.2.0 20260830
+* Export-PSGraph: -OutputFormat now accepts a much wider set of GraphViz
+  output formats (svgz, svg_inline, eps, ps, ps2, xdot, dot_json,
+  xdot_json, json0, canon, gv, fig, bmp, tif/tiff, wbmp, pic, plain-ext)
+  in addition to the original 10 - actual availability still depends on
+  how the local GraphViz build was compiled (see `dot -T?`)
+* Export-PSGraph: -LayoutEngine now accepts osage and patchwork, the two
+  packing-layout engines that were previously unreachable
+* Graph: added -Strict switch, emitting 'strict digraph'/'strict graph'
+  so GraphViz merges duplicate edges
+* New-GraphAttributeSet (alias GraphAttributes): new command for
+  building case-correct GraphViz graph/cluster attribute hashtables
+  (RankDir, Splines, BgColor, gradients, spacing, ...), with the same
+  tab completion as the Node/Edge attribute-set builders
+* New-NodeAttributeSet: added -Peripheries, -GradientAngle, -Tooltip,
+  -URL/-Href, -XLabel, -ColorScheme; added 'radial' to -Style and
+  'record'/'Mrecord' to -Shape
+* New-EdgeAttributeSet: added -Weight, -MinLen, -Tooltip, -URL/-Href,
+  -XLabel
+
 3.1.0 20260829
 * Format-Value: fixed HTML-like label detection so any valid GraphViz
   HTML-like label round-trips, not just ones starting with <table (#100)

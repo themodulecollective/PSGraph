@@ -59,6 +59,7 @@ LONG DESCRIPTION
 
     New-NodeAttributeSet (alias NodeAttributes)
     New-EdgeAttributeSet (alias EdgeAttributes)
+    New-GraphAttributeSet (alias GraphAttributes)
         Build a case-correct GraphViz attribute hashtable from
         parameters, with tab completion for shape, color, and font
         values - GraphViz attribute names and values are case-sensitive,

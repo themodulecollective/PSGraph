@@ -25,6 +25,7 @@ PSGraph is a helper module implemented as a DSL (Domain Specific Language) for g
 
 * [New-NodeAttributeSet](http://psgraph.readthedocs.io/en/latest/Command-New-NodeAttributeSet/) (alias `NodeAttributes`)
 * [New-EdgeAttributeSet](http://psgraph.readthedocs.io/en/latest/Command-New-EdgeAttributeSet/) (alias `EdgeAttributes`)
+* [New-GraphAttributeSet](http://psgraph.readthedocs.io/en/latest/Command-New-GraphAttributeSet/) (alias `GraphAttributes`)
 * [Set-NodeFormatScript](http://psgraph.readthedocs.io/en/latest/Command-Set-NodeFormatScript/)
 
 **Rendering**

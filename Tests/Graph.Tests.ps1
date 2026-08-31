@@ -66,6 +66,20 @@ Describe 'Function Graph' -Tag Build {
         }
     }
 
+    Context "-Strict switch" {
+
+        It "Emits 'strict digraph' when specified" {
+            $result = (graph g -Strict {}) -join ''
+            $result | Should -Match '^strict digraph'
+        }
+
+        It "Emits plain 'digraph' when not specified" {
+            $result = (graph g {}) -join ''
+            $result | Should -Match '^digraph'
+            $result | Should -Not -Match 'strict'
+        }
+    }
+
     Context "Indentation" {
 
         It "Has no indention for first graph element" {

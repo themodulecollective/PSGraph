@@ -11,9 +11,9 @@ It has an alias, `NodeAttributes`, if you want something shorter at the call sit
 
 ## Supported attributes
 
-`-Color`, `-FillColor`, `-FixedSize`, `-FontColor`, `-FontName`, `-FontSize`, `-Height`, `-Image`, `-Label`, `-PenWidth`, `-Regular`, `-Shape`, `-Sides`, `-Skew`, `-Style`, `-Width`, `-Distortion`. Each maps to the matching GraphViz node attribute.
+`-Color`, `-ColorScheme`, `-Distortion`, `-FillColor`, `-FixedSize`, `-FontColor`, `-FontName`, `-FontSize`, `-GradientAngle`, `-Height`, `-Image`, `-Label`, `-PenWidth`, `-Peripheries`, `-Regular`, `-Shape`, `-Sides`, `-Skew`, `-Style`, `-Tooltip`, `-URL` (alias `-Href`), `-Width`, `-XLabel`. Each maps to the matching GraphViz node attribute.
 
-`-Shape` and `-Style` have `[ValidateSet(...)]` on them, so tab completion and parameter validation catch typos before you ever hand the graph to GraphViz.
+`-Shape` and `-Style` have `[ValidateSet(...)]` on them, so tab completion and parameter validation catch typos before you ever hand the graph to GraphViz. `-Style` includes `radial`, for a gradient fill (pair it with a two-color `-FillColor` and `-GradientAngle`); `-Shape` includes `record`/`Mrecord` for callers who want to hand-build a record label rather than use `Record`.
 
 ## Tab completion for color and font
 

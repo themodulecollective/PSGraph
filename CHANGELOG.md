@@ -5,6 +5,39 @@ All notable changes to PSGraph are documented here. This file starts at
 (2.1.38, August 2019), the point at which `themodulecollective/PSGraph`
 forked from the then-dormant `KevinMarquette/PSGraph`.
 
+## 3.2.0 - 2026-08-30
+
+### Added
+
+- `Graph -Strict` emits `strict digraph`/`strict graph`, telling GraphViz
+  to merge duplicate edges instead of drawing them separately.
+- `New-GraphAttributeSet` (alias `GraphAttributes`): a graph/cluster-level
+  counterpart to `New-NodeAttributeSet`/`New-EdgeAttributeSet`, exposing
+  `-RankDir`, `-Splines`, `-BgColor`/`-GradientAngle`/`-Style radial`
+  (gradient fills), `-NodeSep`/`-RankSep`, `-Concentrate`, `-Compound`,
+  `-ColorScheme`, `-Ratio`, `-Size`, and graph-level font/label
+  attributes, with the same tab completion as the existing two builders.
+  `rankdir` previously had no dedicated parameter anywhere in the module.
+- `New-NodeAttributeSet`: added `-Peripheries`, `-GradientAngle`,
+  `-Tooltip`, `-URL` (alias `-Href`), `-XLabel`, `-ColorScheme`; added
+  `'radial'` to `-Style` (gradient fills) and `'record'`/`'Mrecord'` to
+  `-Shape`.
+- `New-EdgeAttributeSet`: added `-Weight`, `-MinLen`, `-Tooltip`, `-URL`
+  (alias `-Href`), `-XLabel`.
+- `Export-PSGraph -OutputFormat`: widened the `ValidateSet` from 10 to 26
+  formats (adds `svgz`, `svg_inline`, `eps`, `ps`, `ps2`, `xdot`,
+  `dot_json`, `xdot_json`, `json0`, `canon`, `gv`, `fig`, `bmp`,
+  `tif`/`tiff`, `wbmp`, `pic`, `plain-ext`) — the previous list rejected
+  several valid `dot -T` values outright. Formats needing extra native
+  libraries not universally present across platforms (`webp`, `gd`,
+  `gd2`, `pov`, `gtk`, `xlib`, `exr`, `psd`) are deliberately excluded;
+  actual availability always depends on the local build (`dot -T?`). Two
+  formats from the original plan (`vml`, `vmlz`) turned out to no longer
+  be present in current Graphviz output-format lists at all and were
+  dropped rather than added speculatively.
+- `Export-PSGraph -LayoutEngine`: added `osage` and `patchwork`, the two
+  Graphviz layout engines that were previously unreachable.
+
 ## 3.1.0 - 2026-08-29
 
 ### Added

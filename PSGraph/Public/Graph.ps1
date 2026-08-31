@@ -19,6 +19,15 @@ function Graph
             edge hello world
         }
 
+        .Example
+
+        graph g -Strict {
+            edge a b
+            edge a b
+        }
+
+        -Strict emits 'strict digraph' so GraphViz merges the duplicate a->b edge into one.
+
         .Notes
         The output is a string so it can be saved to a variable or piped to other commands
     #>
@@ -97,7 +106,12 @@ support; it isn't an oversight."
 
         # Keyword that initiates the graph
         [string]
-        $Type = 'digraph'
+        $Type = 'digraph',
+
+        # Emits 'strict digraph'/'strict graph', which tells GraphViz to merge duplicate edges
+        # instead of drawing them separately. Only meaningful on the top-level graph.
+        [switch]
+        $Strict
     )
 
     begin
@@ -115,7 +129,8 @@ support; it isn't an oversight."
                 $script:SubGraphList = @{}
             }
 
-            "{0}{1} {2} {{" -f (Get-Indent), $Type, $name
+            $typeKeyword = if ( $Strict ) { "strict $Type" } else { $Type }
+            "{0}{1} {2} {{" -f (Get-Indent), $typeKeyword, $name
             $script:indent++
 
             if ($null -ne $Attributes)
