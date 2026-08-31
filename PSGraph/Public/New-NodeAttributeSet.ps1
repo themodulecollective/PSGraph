@@ -38,6 +38,12 @@ doesn't change any external/persistent state, so ShouldProcess doesn't apply."
         [string]
         $Color,
 
+        # Namespace GraphViz resolves Color/FillColor/FontColor small-integer values against,
+        # e.g. 'blues9' (a Brewer palette) or 'x11' (the default). No tab completion is provided -
+        # see https://graphviz.org/doc/info/colors.html#brewer for the full scheme list.
+        [string]
+        $ColorScheme,
+
         # Distortion factor for shape=polygon. Positive values enlarge the top; negative the bottom.
         [double]
         $Distortion,
@@ -63,6 +69,11 @@ doesn't change any external/persistent state, so ShouldProcess doesn't apply."
         [double]
         $FontSize,
 
+        # Angle, in degrees, controlling the direction of a gradient fill (used with a two-color
+        # FillColor and Style 'radial', or Style 'filled' for a linear gradient)
+        [double]
+        $GradientAngle,
+
         # Height of node, in inches - the initial, minimum height
         [double]
         $Height,
@@ -79,6 +90,10 @@ doesn't change any external/persistent state, so ShouldProcess doesn't apply."
         [double]
         $PenWidth,
 
+        # Number of node boundaries drawn, one inside the other
+        [int16]
+        $Peripheries,
+
         # Forces a polygon shape to be regular (vertices lie on a circle centered on the node)
         [switch]
         $Regular,
@@ -94,7 +109,7 @@ doesn't change any external/persistent state, so ShouldProcess doesn't apply."
             'folder', 'box3d', 'component', 'promoter', 'cds', 'terminator',
             'utr', 'primersite', 'restrictionsite', 'fivepoverhang', 'threepoverhang', 'noverhang',
             'assembly', 'signature', 'insulator', 'ribosite', 'rnastab', 'proteasesite',
-            'proteinstab', 'rpromoter', 'rarrow', 'larrow', 'lpromoter'
+            'proteinstab', 'rpromoter', 'rarrow', 'larrow', 'lpromoter', 'record', 'Mrecord'
         )]
         [string]
         $Shape,
@@ -107,22 +122,36 @@ doesn't change any external/persistent state, so ShouldProcess doesn't apply."
         [double]
         $Skew,
 
-        # Style for the node, e.g. filled, dashed, rounded
+        # Style for the node, e.g. filled, dashed, rounded, radial (gradient fill)
         [ValidateSet(
-            'dashed', 'dotted', 'solid', 'invis', 'bold', 'filled', 'striped', 'wedged', 'diagonals', 'rounded'
+            'dashed', 'dotted', 'solid', 'invis', 'bold', 'filled', 'striped', 'wedged', 'diagonals',
+            'rounded', 'radial'
         )]
         [string]
         $Style,
 
+        # Tooltip text shown on hover in SVG/interactive output formats
+        [string]
+        $Tooltip,
+
+        # Hyperlink attached to the node in SVG/PostScript/map output formats
+        [Alias('Href')]
+        [string]
+        $URL,
+
         # Width of node, in inches - the initial, minimum width
         [double]
-        $Width
+        $Width,
+
+        # External label placed near the node without affecting its size or layout
+        [string]
+        $XLabel
     )
 
     $values = @{}
 
     # GraphViz requires these lowercase; user input may not be
-    $lowercaseParams = @('Color', 'FillColor', 'FixedSize', 'FontColor', 'Shape', 'Style')
+    $lowercaseParams = @('Color', 'ColorScheme', 'FillColor', 'FixedSize', 'FontColor', 'Shape', 'Style')
     foreach ($param in $lowercaseParams)
     {
         if ($PSBoundParameters.ContainsKey($param))
@@ -133,7 +162,8 @@ doesn't change any external/persistent state, so ShouldProcess doesn't apply."
 
     # Passed through unchanged - numeric, or free-form text where case is meaningful
     $passthroughParams = @(
-        'Distortion', 'FontName', 'FontSize', 'Height', 'Image', 'Label', 'PenWidth', 'Sides', 'Skew', 'Width'
+        'Distortion', 'FontName', 'FontSize', 'GradientAngle', 'Height', 'Image',
+        'Label', 'PenWidth', 'Peripheries', 'Sides', 'Skew', 'Tooltip', 'URL', 'Width', 'XLabel'
     )
     foreach ($param in $passthroughParams)
     {
@@ -221,6 +251,8 @@ if (Get-Command -Name Register-ArgumentCompleter -ErrorAction SilentlyContinue)
         @{ CommandName = 'New-EdgeAttributeSet'; ParameterName = 'Color' }
         @{ CommandName = 'New-EdgeAttributeSet'; ParameterName = 'FontColor' }
         @{ CommandName = 'New-EdgeAttributeSet'; ParameterName = 'LabelFontColor' }
+        @{ CommandName = 'New-GraphAttributeSet'; ParameterName = 'BgColor' }
+        @{ CommandName = 'New-GraphAttributeSet'; ParameterName = 'FontColor' }
     )
     foreach ($target in $colorCompletionTargets)
     {
@@ -231,6 +263,7 @@ if (Get-Command -Name Register-ArgumentCompleter -ErrorAction SilentlyContinue)
         @{ CommandName = 'New-NodeAttributeSet'; ParameterName = 'FontName' }
         @{ CommandName = 'New-EdgeAttributeSet'; ParameterName = 'FontName' }
         @{ CommandName = 'New-EdgeAttributeSet'; ParameterName = 'LabelFontName' }
+        @{ CommandName = 'New-GraphAttributeSet'; ParameterName = 'FontName' }
     )
     foreach ($target in $fontCompletionTargets)
     {

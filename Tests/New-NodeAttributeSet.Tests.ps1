@@ -61,6 +61,45 @@ Describe 'Function New-NodeAttributeSet' -Tag Build {
         }
     }
 
+    Context "Phase 8 additions" {
+
+        It "Accepts -Peripheries and -GradientAngle without throwing" {
+            { New-NodeAttributeSet -Peripheries 2 -GradientAngle 45 } | Should -Not -Throw
+            (New-NodeAttributeSet -Peripheries 2).peripheries | Should -Be 2
+            (New-NodeAttributeSet -GradientAngle 45).gradientangle | Should -Be 45
+        }
+
+        It "Preserves case for -Tooltip and -XLabel" {
+            $result = New-NodeAttributeSet -Tooltip 'MyTip' -XLabel 'MyXLabel'
+            $result.tooltip | Should -Be 'MyTip'
+            $result.xlabel | Should -Be 'MyXLabel'
+        }
+
+        It "-URL and its -Href alias both bind to the same 'url' key" {
+            (New-NodeAttributeSet -URL 'https://example.com').url | Should -Be 'https://example.com'
+            (New-NodeAttributeSet -Href 'https://example.com').url | Should -Be 'https://example.com'
+        }
+
+        It "Lowercases -ColorScheme" {
+            (New-NodeAttributeSet -ColorScheme 'Blues9').colorscheme | Should -Be 'blues9'
+        }
+
+        It "Accepts 'radial' for -Style" {
+            (New-NodeAttributeSet -Style radial).style | Should -Be 'radial'
+        }
+
+        It "Accepts 'record' and 'Mrecord' for -Shape" {
+            (New-NodeAttributeSet -Shape record).shape | Should -Be 'record'
+            (New-NodeAttributeSet -Shape Mrecord).shape | Should -Be 'mrecord'
+        }
+
+        It "Renders -URL and -Tooltip in DOT output via Node" {
+            $dot = (graph g { node MyNode (New-NodeAttributeSet -URL 'https://example.com' -Tooltip 'hi') }) -join "`n"
+            $dot | Should -Match 'URL="https://example.com"'
+            $dot | Should -Match 'tooltip="hi"'
+        }
+    }
+
     Context "-Regular switch" {
 
         It "Sets regular = true when specified" {

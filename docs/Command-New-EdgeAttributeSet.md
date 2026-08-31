@@ -13,7 +13,7 @@ It has an alias, `EdgeAttributes`, for shorter call sites.
 
 ## Supported attributes
 
-`-ArrowHead`, `-ArrowTail`, `-ArrowSize`, `-Color`, `-Constraint`, `-Direction`, `-FontColor`, `-FontName`, `-FontSize`, `-HeadLabel`, `-Label`, `-LabelFontColor`, `-LabelFontName`, `-LabelFontSize`, `-Length`, `-PenWidth`, `-Style`, `-TailLabel`.
+`-ArrowHead`, `-ArrowTail`, `-ArrowSize`, `-Color`, `-Constraint`, `-Direction`, `-FontColor`, `-FontName`, `-FontSize`, `-HeadLabel`, `-Label`, `-LabelFontColor`, `-LabelFontName`, `-LabelFontSize`, `-Length`, `-MinLen`, `-PenWidth`, `-Style`, `-TailLabel`, `-Tooltip`, `-URL` (alias `-Href`), `-Weight`, `-XLabel`.
 
 A couple of these map to shortened GraphViz keys: `-Direction` becomes `dir`, `-Length` becomes `len`. `-Direction` and `-Style` have `[ValidateSet(...)]` on them for tab completion and up-front validation.
 

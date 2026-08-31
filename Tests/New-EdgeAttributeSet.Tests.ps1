@@ -65,6 +65,32 @@ Describe 'Function New-EdgeAttributeSet' -Tag Build {
         }
     }
 
+    Context "Phase 8 additions" {
+
+        It "Accepts -Weight and -MinLen without throwing (numeric)" {
+            { New-EdgeAttributeSet -Weight 2.5 -MinLen 2 } | Should -Not -Throw
+            (New-EdgeAttributeSet -Weight 2.5).weight | Should -Be 2.5
+            (New-EdgeAttributeSet -MinLen 2).minlen | Should -Be 2
+        }
+
+        It "Preserves case for -Tooltip and -XLabel" {
+            $result = New-EdgeAttributeSet -Tooltip 'MyTip' -XLabel 'MyXLabel'
+            $result.tooltip | Should -Be 'MyTip'
+            $result.xlabel | Should -Be 'MyXLabel'
+        }
+
+        It "-URL and its -Href alias both bind to the same 'url' key" {
+            (New-EdgeAttributeSet -URL 'https://example.com').url | Should -Be 'https://example.com'
+            (New-EdgeAttributeSet -Href 'https://example.com').url | Should -Be 'https://example.com'
+        }
+
+        It "Renders -Weight and -URL in DOT output via Edge" {
+            $dot = (graph g { edge one two (New-EdgeAttributeSet -Weight 3 -URL 'https://example.com') }) -join "`n"
+            $dot | Should -Match 'weight="3"'
+            $dot | Should -Match 'URL="https://example.com"'
+        }
+    }
+
     Context "Integration with Edge" {
 
         It "Merges cleanly into Edge's -Attributes and renders in the DOT output" {

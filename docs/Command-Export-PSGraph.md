@@ -46,15 +46,37 @@ These are the valid options for output formats:
 * pdf
 * plain
 * dot
+* svg
+* svgz
+* svg_inline
+* eps
+* ps
+* ps2
+* xdot
+* dot_json
+* xdot_json
+* json0
+* canon
+* gv
+* fig
+* bmp
+* tif / tiff
+* wbmp
+* pic
+* plain-ext
+
+Whether a given format actually renders depends on how your local GraphViz build was compiled — run `dot -T?` to see what your install supports. Formats needing extra native libraries not universally present across platforms (e.g. `webp`, `gd`, `gd2`, `pov`) aren't in this list; use `-GraphVizPath` to point at a build that has them and pass the format value directly to `dot` yourself if you need one.
 
 ## -LayoutEngine [enum]
 GraphViz supports multiple layout engines. Each work better on different types of datasets.
 
 These are the available engines:
 
-* Hierarchical (Default)
-* Radial
-* Circular
-* SpringModelSmall
-* SpringModelMedium
-* SpringModelLarge
+* Hierarchical (Default) / dot
+* Radial / twopi
+* Circular / circo
+* SpringModelSmall / neato
+* SpringModelMedium / fdp
+* SpringModelLarge / sfdp
+* osage
+* patchwork

@@ -19,6 +19,7 @@ pages:
     - Entity: Command-Entity.md
     - New-NodeAttributeSet: Command-New-NodeAttributeSet.md
     - New-EdgeAttributeSet: Command-New-EdgeAttributeSet.md
+    - New-GraphAttributeSet: Command-New-GraphAttributeSet.md
     - Export-PSGraph: Command-Export-PSGraph.md
     - Show-PSGraph: Command-Show-PSGraph.md
     - Set-NodeFormatScript: Command-Set-NodeFormatScript.md

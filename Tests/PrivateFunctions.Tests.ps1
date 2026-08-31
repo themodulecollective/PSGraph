@@ -24,6 +24,11 @@ InModuleScope -ModuleName PSGraph {
                     Get-LayoutEngine -Name $layout.name | Should -be $layout.value
                 }
             }
+
+            it "resolves osage and patchwork (previously unreachable)" {
+                Get-LayoutEngine -Name 'osage' | Should -Be 'osage'
+                Get-LayoutEngine -Name 'patchwork' | Should -Be 'patchwork'
+            }
         }
 
         Context "Get-ArgumentLookUpTable" {

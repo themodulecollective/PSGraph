@@ -31,6 +31,8 @@ function Get-LayoutEngine
         sfdp              = 'sfdp'
         twopi             = 'twopi'
         circo             = 'circo'
+        osage             = 'osage'
+        patchwork         = 'patchwork'
     }
 
     $layoutEngine[$Name]

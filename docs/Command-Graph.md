@@ -64,3 +64,12 @@ Positional attributes also work.
     graph g @{label='my graph'} {
         edge a,b,c,d,aS
     }
+
+## Graph -Strict
+
+`-Strict` emits `strict digraph`/`strict graph`, which tells GraphViz to merge duplicate edges into one instead of drawing them separately.
+
+    graph g -Strict {
+        edge a b
+        edge a b   # collapsed into the same edge as above
+    }
