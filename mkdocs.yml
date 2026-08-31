@@ -15,6 +15,7 @@ pages:
     - Rank: Command-Rank.md
     - Record: Command-Record.md
     - Row: Command-Row.md
+    - Cells: Command-Cells.md
     - Entity: Command-Entity.md
     - New-NodeAttributeSet: Command-New-NodeAttributeSet.md
     - New-EdgeAttributeSet: Command-New-EdgeAttributeSet.md

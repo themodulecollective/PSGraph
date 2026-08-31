@@ -1,22 +1,20 @@
 # PSGraph
 
-PSGraph is a PowerShell module that allows you to script the generation of graphs using the GraphViz engine. It makes it easy to produce data driven visualizations.
+PSGraph is a PowerShell module that lets you script the generation of graphs using the GraphViz engine. It makes it easy to produce data-driven visualizations straight from PowerShell objects.
 
-![basic graph](https://kevinmarquette.github.io/img/basic.png)
+![basic graph](images/firstGraph.png)
 
 ---
-### Install GraphViz from the Chocolatey repo
-
-    Register-PackageSource -Name Chocolatey -ProviderName Chocolatey -Location http://chocolatey.org/api/v2/
-    Find-Package graphviz | Install-Package -ForceBootstrap
-
-### Install PSGraph from the Powershell Gallery
+### Install PSGraph from the PowerShell Gallery
 
     Find-Module PSGraph | Install-Module
-
-### Import Module
-
     Import-Module PSGraph
+
+### Install GraphViz
+
+    # Chocolatey on Windows (nuget.org fallback for non-admin installs),
+    # Homebrew on macOS, your distro's package manager on Linux
+    Install-GraphViz
 
 ---
 
@@ -40,79 +38,144 @@ Then we can render the graph as an image.
         Edge -From middle -To end
     }  | Export-PSGraph -ShowGraph
 
-
-![firstGraph](http://psgraph.readthedocs.io/en/latest/images/firstGraph.png)
+![firstGraph](images/firstGraph.png)
 
 ---
 
 ### Data driven graphs
 
-The real fun starts when they are data driven
+The real fun starts when they are data driven — every example below pulls its shape from real PowerShell objects, not hand-typed node names.
 
 ---
 
-### Example: Server farm data
+### Example: Server farm topology
 
-Imagine you wanted to diagram a server farm.
+Describe how tiers of servers relate to each other.
 
-I'm generating example servers here:
-
-    # Server counts
-    $WebServerCount = 2
-    $APIServerCount = 2
-    $DatabaseServerCount = 2
-
-    # Server lists
-    $WebServer = 1..$WebServerCount | % {"Web_$_"}
-    $APIServer = 1..$APIServerCount | % {"API_$_"}
-    $DatabaseServer = 1..$DatabaseServerCount | % {"DB_$_"}
-
-But you could source these from AD or your CMDB
-
----
-
-### Example: Server farm graph
-
-Then describe how those lists of servers are related
+    $WebServer = 1..2 | ForEach-Object {"Web_$_"}
+    $APIServer = 1..2 | ForEach-Object {"API_$_"}
+    $DatabaseServer = 1..2 | ForEach-Object {"DB_$_"}
 
     graph servers {
-        node -Default @{shape='box'}
+        node @{shape='box'}
         edge LoadBalancer -To $WebServer
         edge $WebServer -To $APIServer
         edge $APIServer -To AvailabilityGroup
         edge AvailabilityGroup -To $DatabaseServer
     } | Export-PSGraph -ShowGraph
 
----
-
-### Example: Server farm graph image
-
-![servers](https://kevinmarquette.github.io/img/servers.png)
+![servers](images/pitchme-serverfarm.png)
 
 ---
 
-### Example: Project structures
+### Example: Database schema
 
-![files structure](http://psgraph.readthedocs.io/en/latest/images/filesSmall.png)
+`Record`/`Row`/`Cells` build GraphViz's HTML-like table nodes — a natural fit for entity-relationship diagrams. `Cells -PortProperty` names a row so `Edge` can point straight at it.
+
+    $customers = @(
+        [pscustomobject]@{ Column='Id'; Type='int PK' }
+        [pscustomobject]@{ Column='Name'; Type='nvarchar' }
+        [pscustomobject]@{ Column='Email'; Type='nvarchar' }
+    )
+    $orders = @(
+        [pscustomobject]@{ Column='Id'; Type='int PK' }
+        [pscustomobject]@{ Column='CustomerId'; Type='int FK' }
+        [pscustomobject]@{ Column='Total'; Type='money' }
+    )
+
+    graph schema {
+        Record Customers -Rows ($customers | Cells -PortProperty Column)
+        Record Orders -Rows ($orders | Cells -PortProperty Column)
+        Edge 'Orders:CustomerId' -To 'Customers:Id'
+    } | Export-PSGraph -ShowGraph
+
+![schema](images/pitchme-schema.png)
 
 ---
 
-### Example: Parent and child processes
+### Example: Live process tree
 
-![related processes](http://psgraph.readthedocs.io/en/latest/images/processSmall.png)
+Graph what's actually running right now, color-coded by memory use via `New-NodeAttributeSet`.
+
+    $all = Get-Process
+    $procs = $all | Where-Object {
+        $_.Id -ne 0 -and $_.Parent -and ($all.Id -contains $_.Parent.Id)
+    }
+
+    graph processTree @{rankdir='LR'} {
+        $procs | ForEach-Object {
+            $color = if ($_.WorkingSet64 -gt 200MB) {'orangered'}
+                     elseif ($_.WorkingSet64 -gt 50MB) {'gold'}
+                     else {'palegreen'}
+            $attrs = New-NodeAttributeSet -Style filled -FillColor $color
+            $attrs.label = $_.ProcessName
+            node $_.Id $attrs
+        }
+        edge $procs -FromScript {$_.Parent.Id} -ToScript {$_.Id}
+    } | Export-PSGraph -ShowGraph
+
+![process tree](images/pitchme-processtree.png)
 
 ---
 
-### Example: Network connections
+### Example: Windows service dependencies
 
-![network connections](http://psgraph.readthedocs.io/en/latest/images/networkConnection.png)
+`Get-Service` already exposes each service's dependency graph — PSGraph just draws it.
+
+    $services = Get-Service | Where-Object RequiredServices
+
+    graph serviceDeps @{rankdir='LR'} {
+        node @{shape='box'}
+        $services | ForEach-Object {
+            edge $_.Name -To $_.RequiredServices.Name
+        }
+    } | Export-PSGraph -ShowGraph
+
+![service dependencies](images/pitchme-servicedeps.png)
+
+---
+
+### Example: PowerShell module dependencies
+
+Dogfooding: walk installed modules' own `RequiredModules` and graph them.
+
+    $modules = Get-Module -ListAvailable | Where-Object RequiredModules
+
+    graph moduleDeps @{rankdir='LR'} {
+        node @{shape='box'}
+        $modules | ForEach-Object {
+            edge $_.Name -To $_.RequiredModules.Name
+        }
+    } | Export-PSGraph -ShowGraph
+
+![module dependencies](images/pitchme-moduledeps.png)
+
+---
+
+### Example: Export to any format in one line
+
+`Export-PSGraph` ships a format-specific alias for every supported output — `svgGraph`, `pngGraph`, `pdfGraph`, `dotGraph`, and more.
+
+    $dot = graph g { edge hello world }
+
+    $dot | svgGraph -Destination out.svg
+    $dot | pngGraph -Destination out.png
+    $dot | pdfGraph -Destination out.pdf
+
+![formats](images/pitchme-formats.png)
+
+---
+
+### More examples
+
+* [Project structure](images/filesSmall.png) — a folder tree walked with `Get-ChildItem`
+* [GraphViz gallery recreations](https://github.com/themodulecollective/PSGraph/blob/main/docs/Example-Gallery.md) — clusters, entity-relation diagrams, finite automata
+* Full command reference and more scripted examples: [psgraph.readthedocs.io](http://psgraph.readthedocs.io)
 
 ---
 
 ### What will you graph?
 
-For more information
-
-* [psgraph.readthedocs.io](http://psgraph.readthedocs.io)
-* [github.com/kevinmarquette/psgraph](https://github.com/kevinmarquette/psgraph)
-* [kevinmarquette.github.io](https://kevinmarquette.github.io)
+* [psgraph.readthedocs.io](http://psgraph.readthedocs.io) — full documentation
+* [github.com/themodulecollective/PSGraph](https://github.com/themodulecollective/PSGraph) — source, issues, and this fork's changelog
+* `Get-Help about_PSGraph` — conceptual overview, right from your PowerShell prompt

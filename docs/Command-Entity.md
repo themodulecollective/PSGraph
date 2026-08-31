@@ -13,7 +13,7 @@ The `Entity` command takes an object and maps it into a `Record`. This turned ou
         Entity $object
     } | Show-PSGraph
 
-![An entity showing a PSCustomObject](/img/entitytypename.png)
+![An entity showing a PSCustomObject](images/entitytypename.png)
 
 ## Entity [object] -Show [enum]
 
@@ -29,7 +29,7 @@ Here is the same object showing the values.
         Entity $object -Name 'Person' -Show Value
     } | Show-PSGraph
 
-![An entity showing the object values](/img/entityvalue.png)
+![An entity showing the object values](images/entityvalue.png)
 
 The entity will automatically name each row with the property name. This will allow you to draw edges directly to them. I have a more complex example at the end of this article that shows this in action.
 

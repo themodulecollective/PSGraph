@@ -19,7 +19,7 @@ This is the most common way to define a record with a list of values.
 
 This will produce a node that looks like this:
 
-![single node record object](/img/record.png)
+![single node record object](images/record.png)
 
 Under the covers, this is a node object. The command takes care of all the attributes and HTML label formating for you. Because this is a `Node`, you can created edges to it like you would any other node.
 
