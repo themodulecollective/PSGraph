@@ -2,7 +2,7 @@
 
 PSGraph is a PowerShell module that lets you script the generation of graphs using the GraphViz engine. It makes it easy to produce data-driven visualizations straight from PowerShell objects.
 
-![basic graph](images/firstGraph.png)
+![basic graph](docs/images/firstGraph.png)
 
 ---
 ### Install PSGraph from the PowerShell Gallery
@@ -38,7 +38,7 @@ Then we can render the graph as an image.
         Edge -From middle -To end
     }  | Export-PSGraph -ShowGraph
 
-![firstGraph](images/firstGraph.png)
+![firstGraph](docs/images/firstGraph.png)
 
 ---
 
@@ -64,7 +64,7 @@ Describe how tiers of servers relate to each other.
         edge AvailabilityGroup -To $DatabaseServer
     } | Export-PSGraph -ShowGraph
 
-![servers](images/pitchme-serverfarm.png)
+![servers](docs/images/pitchme-serverfarm.png)
 
 ---
 
@@ -89,7 +89,7 @@ Describe how tiers of servers relate to each other.
         Edge 'Orders:CustomerId' -To 'Customers:Id'
     } | Export-PSGraph -ShowGraph
 
-![schema](images/pitchme-schema.png)
+![schema](docs/images/pitchme-schema.png)
 
 ---
 
@@ -114,7 +114,7 @@ Graph what's actually running right now, color-coded by memory use via `New-Node
         edge $procs -FromScript {$_.Parent.Id} -ToScript {$_.Id}
     } | Export-PSGraph -ShowGraph
 
-![process tree](images/pitchme-processtree.png)
+![process tree](docs/images/pitchme-processtree.png)
 
 ---
 
@@ -131,7 +131,7 @@ Graph what's actually running right now, color-coded by memory use via `New-Node
         }
     } | Export-PSGraph -ShowGraph
 
-![service dependencies](images/pitchme-servicedeps.png)
+![service dependencies](docs/images/pitchme-servicedeps.png)
 
 ---
 
@@ -148,7 +148,7 @@ Dogfooding: walk installed modules' own `RequiredModules` and graph them.
         }
     } | Export-PSGraph -ShowGraph
 
-![module dependencies](images/pitchme-moduledeps.png)
+![module dependencies](docs/images/pitchme-moduledeps.png)
 
 ---
 
@@ -162,13 +162,13 @@ Dogfooding: walk installed modules' own `RequiredModules` and graph them.
     $dot | pngGraph -Destination out.png
     $dot | pdfGraph -Destination out.pdf
 
-![formats](images/pitchme-formats.png)
+![formats](docs/images/pitchme-formats.png)
 
 ---
 
 ### More examples
 
-* [Project structure](images/filesSmall.png) — a folder tree walked with `Get-ChildItem`
+* [Project structure](docs/images/filesSmall.png) — a folder tree walked with `Get-ChildItem`
 * [GraphViz gallery recreations](https://github.com/themodulecollective/PSGraph/blob/main/docs/Example-Gallery.md) — clusters, entity-relation diagrams, finite automata
 * Full command reference and more scripted examples: [psgraph.readthedocs.io](http://psgraph.readthedocs.io)
 
